@@ -1,0 +1,24 @@
+{
+	"name": "dashifen/form",
+	"description": "A series of objects that build an HTML form in the way I like.",
+	"minimum-stability": "stable",
+	"type": "library",
+	"authors": [
+		{
+			"name": "David Dashifen Kees",
+			"email": "dashifen@dashifen.com",
+			"homepage": "https://dashifen.com",
+			"role": "developer"
+		}
+	],
+	"autoload": {
+		"psr-4": {
+			"Dashifen\\Form\\": "src/"
+		}
+	},
+	"require": {
+		"dashifen/exception": "^1",
+		"php": "^7.1"
+	},
+	"license": "MIT"
+}
