@@ -15,6 +15,15 @@ abstract class AbstractField implements FieldInterface {
 	protected $error = false;
 	protected $value = "";
 	
+	/**
+	 * @var array
+	 *
+	 * to avoid finding the namespace for types over and over again,
+	 * we'll use this property to store them.  it's static so that we
+	 * can use it in the static getNamespacedType() method.
+	 */
+	protected static $types = [];
+	
 	// sometimes, some fields may need to restrict the ability to make
 	// changes to a its own properties.  in such a case, it sets the
 	// locked flag.
@@ -52,6 +61,7 @@ abstract class AbstractField implements FieldInterface {
 	 * @param string $jsonField
 	 *
 	 * @return FieldInterface
+	 * @throws FieldException
 	 */
 	public static function parse(string $jsonField): FieldInterface {
 		$fieldData = json_decode($jsonField);
@@ -75,18 +85,36 @@ abstract class AbstractField implements FieldInterface {
 		// we use a variable constructor because this object is abstract.
 		// therefore, we need to call the constructor for the type of field
 		// that we're instantiating here.  if you look above, you'll see
-		// that we default to a text field if one is not specified.
+		// that we default to a text field if one is not specified.  but,
+		// since we won't have use statements for our fields, we need to
+		// get their fully qualified namespace.
 		
 		/** @var FieldInterface $field */
 		
-		$field = new $type($id, $name, $label);
+		$namespaced_type = AbstractField::getNamespacedType($type);
+		$field = new $namespaced_type($id, $name, $label);
 		
 		// here's where the $locked flag comes into play.  if a field needs to
 		// lock itself after construction, then our isLocked() method will
 		// return true and we're done.
 		
 		if (!$field->isLocked()) {
-			$field->setClasses($fieldData->classes ?? []);
+			
+			// first, we want to handle our classes.  if our fieldData
+			// doesn't have an array within it, we'll assume it's a space-
+			// separated string of class names and explode() accordingly.
+			
+			$classes = $fieldData->classes ?? [];
+			if (!is_array($classes) && is_string($classes)) {
+				$classes = explode(" ", $classes);
+			} else {
+				throw new FieldException(
+					"Parse error: classes must be array or string",
+					FieldException::INVALID_CLASSES
+				);
+			}
+			
+			$field->setClasses($classes);
 			$field->setInstructions($fieldData->instructions ?? "");
 			$field->setRequired($fieldData->required ?? self::OPTIONAL);
 			$field->setOptions($fieldData->options ?? []);
@@ -99,6 +127,62 @@ abstract class AbstractField implements FieldInterface {
 		$field->setError($fieldData->errorMessage ?? "");
 		$field->setValue($fieldData->value ?? "");
 		return $field;
+	}
+	
+	/**
+	 * @param string $type
+	 *
+	 * @return string
+	 * @throws FieldException
+	 */
+	public static function getNamespacedType(string $type): string {
+		if (isset(static::$types[$type])) {
+			return static::$types[$type];
+		}
+		
+		// given our un-namespaced $type, we want to look for it
+		// within our Elements folder.  when we find it, we then
+		// need to construct the namespaced version of that type
+		// and return it.  we expect that this is mostly useful for
+		// the parse() method above, but maybe it'll be useful in
+		// other places, too.
+		
+		$dir = new \RecursiveDirectoryIterator("./Elements");
+		$files = new \RecursiveIteratorIterator($dir);
+		foreach ($files as $file) {
+			/** @var \SplFileInfo $file */
+			
+			$basename = $file->getBasename(".php");
+			if ($basename === $type) {
+			
+				// now that we've found the file that defines our
+				// $type, we need to determine its namespace.  we
+				// could open the file and actually read it out of
+				// the file's content, but that's expensive.  the
+				// other way to go is to build it based on the path
+				// to the file itself.
+				
+				$path = $file->getPath();
+				$path = str_replace(DIRECTORY_SEPARATOR, "\\", $path);
+				$middle = substr($path, strpos($path, 'src\\') + 4);
+				$namespace = '\Dashifen\Form\\' . $middle . '\\' . $type;
+				
+				// so that we don't have to do all of this work over
+				// again just to find the same information for this $type,
+				// we'll store it in our static property.
+				
+				static::$types[$type] = $namespace;
+				return $namespace;
+			}
+		}
+		
+		// if we didn't return within the above loop, then we never
+		// found a field of this $type.  all we can do is throw this
+		// exception and hope that this problem can be solved else-
+		// where.
+		
+		throw new FieldException("Unknown field: $type",
+			FieldException::UNKNOWN_FIELD);
 	}
 	
 	/**

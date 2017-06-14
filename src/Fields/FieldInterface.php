@@ -130,6 +130,15 @@ interface FieldInterface {
 	 * @param string $jsonField
 	 *
 	 * @return FieldInterface
+ 	 * @throws FieldException
 	 */
 	public static function parse(string $jsonField): FieldInterface;
+	
+	/**
+	 * @param string $type
+	 *
+	 * @return string
+	 * @throws FieldException
+	 */
+	public static function getNamespacedType(string $type): string;
 }
