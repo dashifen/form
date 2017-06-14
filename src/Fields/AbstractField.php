@@ -105,13 +105,15 @@ abstract class AbstractField implements FieldInterface {
 			// separated string of class names and explode() accordingly.
 			
 			$classes = $fieldData->classes ?? [];
-			if (!is_array($classes) && is_string($classes)) {
-				$classes = explode(" ", $classes);
-			} else {
-				throw new FieldException(
-					"Parse error: classes must be array or string",
-					FieldException::INVALID_CLASSES
-				);
+			if (!is_array($classes)) {
+				if (is_string($classes)) {
+					$classes = explode(" ", $classes);
+				} else {
+					throw new FieldException(
+						"Parse error: classes must be array or string",
+						FieldException::INVALID_CLASSES
+					);
+				}
 			}
 			
 			$field->setClasses($classes);
@@ -147,14 +149,14 @@ abstract class AbstractField implements FieldInterface {
 		// the parse() method above, but maybe it'll be useful in
 		// other places, too.
 		
-		$dir = new \RecursiveDirectoryIterator("./Elements");
+		$dir = new \RecursiveDirectoryIterator(__DIR__);
 		$files = new \RecursiveIteratorIterator($dir);
 		foreach ($files as $file) {
 			/** @var \SplFileInfo $file */
 			
 			$basename = $file->getBasename(".php");
 			if ($basename === $type) {
-			
+				
 				// now that we've found the file that defines our
 				// $type, we need to determine its namespace.  we
 				// could open the file and actually read it out of
@@ -237,7 +239,8 @@ abstract class AbstractField implements FieldInterface {
 			// namespace.  so we'll explode that based on the namespace
 			// separator and then pop off the last item.
 			
-			$type = strtolower(array_pop(explode("\\", self::class)));
+			$temp = explode("\\", self::class);
+			$type = strtolower(array_pop($temp));
 		}
 		
 		$this->type = $type;

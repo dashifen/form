@@ -79,13 +79,15 @@ class Fieldset implements FieldsetInterface {
 		// assume it's a space-separated string of our classes.
 		// we can explode() that and send it on its way.
 		
-		if (!is_array($classes) && is_string($classes)) {
-			$classes = explode(" ", $classes);
-		} else {
-			throw new FieldsetException(
-				"Parse error: Fieldset classes must be array or string",
-				FieldsetException::INVALID_CLASSES
-			);
+		if (!is_array($classes)) {
+			if (is_string($classes)) {
+				$classes = explode(" ", $classes);
+			} else {
+				throw new FieldsetException(
+					"Parse error: Fieldset classes must be array or string",
+					FieldsetException::INVALID_CLASSES
+				);
+			}
 		}
 		
 		$fieldset->setClasses($classes);
