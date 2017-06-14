@@ -49,6 +49,48 @@ class Fieldset implements FieldsetInterface {
 			: $legend;
 	}
 	
+	
+	
+	/**
+	 * @param string $jsonFieldset
+	 *
+	 * @return FieldsetInterface
+	 */
+	public static function parse(string $jsonFieldset): FieldsetInterface {
+		$fieldsetData = json_decode($jsonFieldset);
+		
+		// like the parser for our form, the first thing we do is set a
+		// few of our properties.  we'll use the null coalescing operator
+		// to make this look slick all on one line.  first, we handle the
+		// id and legend, since those are parameters for our constructor.
+		
+		$id = $fieldsetData->id ?? uniqid("fieldset-");
+		$legend = $fieldsetData->legend ?? "";
+		$fieldset = new Fieldset($id, $legend);
+		
+		// now, the classes and instructions are next.
+		
+		$classes = $fieldsetData->classes ?? [];
+		$instructions = $fieldsetData->instructions ?? "";
+		$fieldset->setInstructions($instructions);
+		$fieldset->setClasses($classes);
+		
+		// finally, we'll want to process our fields one by one and
+		// add them to this set.  then, we can return our fieldset
+		//
+		
+		$fields = $fieldsetData->fields ?? [];
+		foreach ($fields as $field) {
+			if (is_object($field)) {
+				$field = json_encode($field);
+			}
+			
+			$fieldset->addField(AbstractField::parse($field));
+		}
+		
+		return $fieldset;
+	}
+	
 	/**
 	 * @param string $class
 	 */
@@ -254,41 +296,5 @@ class Fieldset implements FieldsetInterface {
 		}
 		
 		return $contents;
-	}
-	
-	/**
-	 * @param string $jsonFieldset
-	 *
-	 * @return FieldsetInterface
-	 */
-	public static function parse(string $jsonFieldset): FieldsetInterface {
-		$fieldsetData = json_decode($jsonFieldset);
-		
-		// like the parser for our form, the first thing we do is set a
-		// few of our properties.  we'll use the null coalescing operator
-		// to make this look slick all on one line.  first, we handle the
-		// id and legend, since those are parameters for our constructor.
-		
-		$id = $fieldsetData->id ?? uniqid("fieldset-");
-		$legend = $fieldsetData->legend ?? "";
-		$fieldset = new Fieldset($id, $legend);
-		
-		// now, the classes and instructions are next.
-		
-		$classes = $fieldsetData->classes ?? [];
-		$instructions = $fieldsetData->instructions ?? "";
-		$fieldset->setInstructions($instructions);
-		$fieldset->setClasses($classes);
-		
-		// finally, we'll want to process our fields one by one and
-		// add them to this set.  then, we can return our fieldset
-		//
-		
-		$fields = $fieldsetData->fields ?? [];
-		foreach ($fields as $field) {
-			$fieldset->addField(AbstractField::parse($field));
-		}
-		
-		return $fieldset;
 	}
 }

@@ -99,6 +99,10 @@ class Form implements FormInterface {
 		
 		$fieldsets = $formData->fieldsets ?? [];
 		foreach ($fieldsets as $fieldset) {
+			if (is_object($fieldset)) {
+				$fieldset = json_encode($fieldset);
+			}
+			
 			$form->addFieldset(Fieldset::parse($fieldset));
 		}
 		
