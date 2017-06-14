@@ -84,6 +84,7 @@ interface FieldsetInterface {
 	 * @param string $jsonFieldset
 	 *
 	 * @return FieldsetInterface
+	 * @throws FieldsetException
 	 */
 	public static function parse(string $jsonFieldset): FieldsetInterface;
 }

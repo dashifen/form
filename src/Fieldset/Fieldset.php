@@ -55,6 +55,7 @@ class Fieldset implements FieldsetInterface {
 	 * @param string $jsonFieldset
 	 *
 	 * @return FieldsetInterface
+	 * @throws FieldsetException
 	 */
 	public static function parse(string $jsonFieldset): FieldsetInterface {
 		$fieldsetData = json_decode($jsonFieldset);
@@ -73,6 +74,20 @@ class Fieldset implements FieldsetInterface {
 		$classes = $fieldsetData->classes ?? [];
 		$instructions = $fieldsetData->instructions ?? "";
 		$fieldset->setInstructions($instructions);
+		
+		// for classes, if it's not an array, we're going to
+		// assume it's a space-separated string of our classes.
+		// we can explode() that and send it on its way.
+		
+		if (!is_array($classes) && is_string($classes)) {
+			$classes = explode(" ", $classes);
+		} else {
+			throw new FieldsetException(
+				"Parse error: Fieldset classes must be array or string",
+				FieldsetException::INVALID_CLASSES
+			);
+		}
+		
 		$fieldset->setClasses($classes);
 		
 		// finally, we'll want to process our fields one by one and
