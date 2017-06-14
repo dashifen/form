@@ -87,11 +87,14 @@ abstract class AbstractField implements FieldInterface {
 		// that we're instantiating here.  if you look above, you'll see
 		// that we default to a text field if one is not specified.  but,
 		// since we won't have use statements for our fields, we need to
-		// get their fully qualified namespace.
+		// get their fully qualified namespace unless $type already has it.
+		
+		$namespaced_type = strpos($type, '\\') === false
+			? AbstractField::getNamespacedType($type)
+			: $type;
 		
 		/** @var FieldInterface $field */
 		
-		$namespaced_type = AbstractField::getNamespacedType($type);
 		$field = new $namespaced_type($id, $name, $label);
 		
 		// here's where the $locked flag comes into play.  if a field needs to
