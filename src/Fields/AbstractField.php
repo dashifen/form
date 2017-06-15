@@ -11,7 +11,8 @@ abstract class AbstractField implements FieldInterface {
 	protected $classes = [];
 	protected $required = "";
 	protected $instructions = "";
-	protected $error_message = "";
+	protected $errorMessage = "";
+	protected $additionalAttributes = [];
 	protected $error = false;
 	protected $value = "";
 	
@@ -126,9 +127,10 @@ abstract class AbstractField implements FieldInterface {
 		}
 		
 		// even if the field was locked, error message and values should
-		// still be set.  once we handle these, we can return our newly
-		// created field.
+		// still be set.  similarly, if there are additional attributes for
+		// this field, we'll set those as well.
 		
+		$field->setAdditionalAttributes($fieldData->additionalAttributes ?? []);
 		$field->setError($fieldData->errorMessage ?? "");
 		$field->setValue($fieldData->value ?? "");
 		return $field;
@@ -346,6 +348,47 @@ abstract class AbstractField implements FieldInterface {
 	}
 	
 	/**
+	 * @param array $additionalAttributes
+	 */
+	public function setAdditionalAttributes(array $additionalAttributes): void {
+		$this->additionalAttributes = $additionalAttributes;
+	}
+	
+	/**
+	 * @return array
+	 */
+	public function getAdditionalAttributes(): array {
+		return $this->additionalAttributes;
+	}
+	
+	/**
+	 * @param array $potentials
+	 *
+	 * @return string
+	 */
+	protected function getAttributesAsString(array $potentials): string {
+		$attributes = [];
+		
+		// the additional attributes - our potentials - that a Number
+		// field cares about are the step, min, and max attributes.  we
+		// loop over those and check for them in our additionalAttributes
+		// property.
+		
+		foreach ($potentials as $potential) {
+			if (isset($this->additionalAttributes[$potential])) {
+				$potentialValue = $this->additionalAttributes[$potential];
+				$attributes[] = sprintf('%s="%s"', $potential, $potentialValue);
+			}
+		}
+		
+		// by joining our attributes together, we'll get something that may
+		// look like this 'step="1" min="0" max="10"' which we return to the
+		// calling scope.
+		
+		return join(" ", $attributes);
+	}
+	
+	/**
 	 * @param string|null $value
 	 */
 	public function resetError(string $value = null): void {
@@ -360,7 +403,7 @@ abstract class AbstractField implements FieldInterface {
 	 * @return string
 	 */
 	public function getError(): string {
-		return $this->error_message;
+		return $this->errorMessage;
 	}
 	
 	/**
@@ -373,7 +416,7 @@ abstract class AbstractField implements FieldInterface {
 		// was passed here as well as set our error flag.  both are used
 		// in the getLabel() method below.
 		
-		$this->error_message = $error;
+		$this->errorMessage = $error;
 		$this->error = !empty($error);
 		
 		// if a value was sent here, too, we'll set that, too.  this is
@@ -445,7 +488,7 @@ abstract class AbstractField implements FieldInterface {
 				<i class="fa fa-star" aria-hidden="true" title="required"></i>
 			<?php }
 			if ($this->error !== false) { ?>
-				<strong role="alert"><?= $this->error_message ?></strong>
+				<strong role="alert"><?= $this->errorMessage ?></strong>
 			<?php } ?>
 		
 		</label>

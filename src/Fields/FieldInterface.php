@@ -104,6 +104,16 @@ interface FieldInterface {
 	public function getOptions(): array;
 	
 	/**
+	 * @param array $additionalAttributes
+	 */
+	public function setAdditionalAttributes(array $additionalAttributes): void;
+	
+	/**
+	 * @return array
+	 */
+	public function getAdditionalAttributes(): array;
+	
+	/**
 	 * @param string      $error
 	 * @param string|null $value
 	 */

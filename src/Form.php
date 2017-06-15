@@ -7,12 +7,6 @@ use Dashifen\Form\Fieldset\Fieldset;
 use Dashifen\Form\Fieldset\FieldsetInterface;
 use Dashifen\Form\Fields\AbstractField;
 
-// it would be preferable to use an interface here.  but, since
-// we need to know that it's a button when we're adding a button
-// below, we'll simply use the actual element at the moment.
-
-use Dashifen\Form\Fields\Elements\Buttons\Button;
-
 /**
  * Class Form
  *
@@ -325,7 +319,7 @@ class Form implements FormInterface {
 	 * @throws FormException
 	 */
 	public function addButton(FieldInterface $button): void {
-	
+		
 		// if we're here, then we know $button is a FieldInterface
 		// object, but we want to be sure that it's a button.  we can
 		// do that by checking its type.
@@ -441,7 +435,7 @@ class Form implements FormInterface {
 		
 		foreach ($this->buttons as $button) {
 			/** @var FieldInterface $button */
-
+			
 			$buttons .= $button->getField();
 		}
 		
@@ -450,13 +444,8 @@ class Form implements FormInterface {
 			// if we never received any buttons to display, then we want to
 			// create a submit button and use it now.
 			
-			$submit = json_encode(["type" => "button", "label" => "Submit"]);
+			$submit = json_encode(["type" => "SubmitButton", "label" => "Submit"]);
 			$submit = AbstractField::parse($submit);
-			
-			/** @var Button $submit */
-			
-			$submit->setIcon("fa-save");
-			$submit->setExtraType("submit");
 			$buttons = $submit->getField();
 		}
 		
