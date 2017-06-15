@@ -15,7 +15,7 @@ class Text extends AbstractField {
 			<li class="%s">
 				%s
 				%s
-				<input type="%s" id="%s" name="%s" class="%s" aria-required="%s"%s>
+				<input type="%s" id="%s" name="%s" class="%s" value="%s" aria-required="%s"%s>
 			</li>
 		';
 		
@@ -32,6 +32,7 @@ class Text extends AbstractField {
 			$this->id,
 			$this->name,
 			$this->getClassesAsString(),
+			$this->value,
 			$this->required ? "true" : "false",
 			$this->required ? " required" : ""
 		);

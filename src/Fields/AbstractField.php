@@ -67,6 +67,8 @@ abstract class AbstractField implements FieldInterface {
 	public static function parse(string $jsonField): FieldInterface {
 		$fieldData = json_decode($jsonField);
 		
+		// echo "<pre>" . print_r($fieldData, true) . "</pre>";
+		
 		// this parse method is much like the one for the Form and Fieldset.
 		// but, it has to parse many different types of fields.  normally, a
 		// child could override it, but the Fieldset's parse method explicitly
@@ -124,13 +126,22 @@ abstract class AbstractField implements FieldInterface {
 			$field->setInstructions($fieldData->instructions ?? "");
 			$field->setRequired($fieldData->required ?? self::OPTIONAL);
 			$field->setOptions($fieldData->options ?? []);
+			
+			// if there are additional attributes for this field, we'll set
+			// those as well.  but, we want our attributes as an array and
+			// our decode above makes them an object.  so, we'll cast them
+			// if they're not in the right format which works because all
+			// of the properties are public after a JSON decode.
+			
+			if (isset($fieldData->additionalAttributes)) {
+				$attributes = (array) $fieldData->additionalAttributes;
+				$field->setAdditionalAttributes($attributes);
+			}
 		}
 		
 		// even if the field was locked, error message and values should
-		// still be set.  similarly, if there are additional attributes for
-		// this field, we'll set those as well.
+		// still be set.
 		
-		$field->setAdditionalAttributes($fieldData->additionalAttributes ?? []);
 		$field->setError($fieldData->errorMessage ?? "");
 		$field->setValue($fieldData->value ?? "");
 		return $field;
