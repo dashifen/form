@@ -102,14 +102,15 @@ class FormBuilder implements FormBuilderInterface {
 		// them to the end.
 		
 		$field = [
-			"type"         => $description["type"],
-			"id"           => $description["id"] ?? uniqid("field-"),
-			"options"      => $description["options"] ?? [],
-			"classes"      => $description["classes"] ?? [],
-			"required"     => $description["required"] ?? FieldInterface::OPTIONAL,
-			"instructions" => $description["instructions"] ?? "",
-			"errorMessage" => $description["errorMessage"] ?? "",
-			"value"        => $description["value"],
+			"type"                 => $description["type"],
+			"id"                   => $description["id"] ?? uniqid("field-"),
+			"options"              => $description["options"] ?? [],
+			"classes"              => $description["classes"] ?? [],
+			"required"             => $description["required"] ?? FieldInterface::OPTIONAL,
+			"instructions"         => $description["instructions"] ?? "",
+			"errorMessage"         => $description["errorMessage"] ?? "",
+			"additionalAttributes" => $description["additionalAttributes"] ?? [],
+			"value"                => $description["value"],
 		];
 		
 		if (isset($description["name"])) {

@@ -239,12 +239,12 @@ abstract class AbstractField implements FieldInterface {
 		if (empty($type)) {
 			
 			// if $type is empty, then we want to make sure that we
-			// turn it into the lower case name of this class.  we can
-			// use self::class to get that name, but it includes the
-			// namespace.  so we'll explode that based on the namespace
-			// separator and then pop off the last item.
+			// turn it into the lower case name of this class.  because
+			// we want the name of the classes which extend this one, we
+			// use static::class rather than self::class.  the latter
+			// would always be AbstractField, after all.
 			
-			$temp = explode("\\", self::class);
+			$temp = explode("\\", static::class);
 			$type = strtolower(array_pop($temp));
 		}
 		
