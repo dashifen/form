@@ -347,7 +347,7 @@ class Form implements FormInterface {
 		
 		$attributes = ["id", "method"];
 		
-		if (!is_null($this->action)) {
+		if (!is_null($this->action) && !empty($this->action)) {
 			$attributes[] = "action";
 		}
 		
