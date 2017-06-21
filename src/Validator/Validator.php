@@ -242,4 +242,36 @@ class Validator implements ValidatorInterface {
 	protected function url($value, int $flags = FILTER_FLAG_SCHEME_REQUIRED & FILTER_FLAG_HOST_REQUIRED) {
 		return filter_var($value, FILTER_VALIDATE_URL, $flags);
 	}
+	
+	/**
+	 * @param        $value
+	 * @param string $format
+	 *
+	 * @return bool
+	 */
+	protected function date($value, $format = "m/d/Y"): bool {
+		
+		// for dates, we do something weird.  first, we use strtotime() to
+		// confirm that what we have is a readable datetime format.
+		
+		$timestamp = strtotime($value);
+		if ($timestamp === false) {
+			return false;
+		}
+		
+		// if we didn't return above, then we have a valid datetime format
+		// in $value.  next, we'll want to re-create our date using $format
+		// and see if that created date matches our value.  if so, then we
+		// we have a valid date in the right format and we'll return true.
+		
+		return date($format, $timestamp) === $value;
+	}
+	
+	protected function time($value, string $format = "g:i A"): bool {
+		
+		// times can be validated just like dates; we just specif our
+		// format when we call the other function.
+		
+		return $this->date($value, $format);
+	}
 }
