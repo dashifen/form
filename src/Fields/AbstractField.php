@@ -140,10 +140,23 @@ abstract class AbstractField implements FieldInterface {
 		}
 		
 		// even if the field was locked, error message and values should
-		// still be set.
+		// still be set.  most of the time, our values come to us as strings,
+		// or things that can be cast as strings, but if it's an array, we'll
+		// need to do it ourselves.
+		
+		$value = $fieldData->value ?? "";
+		if (!is_string($value)) {
+			
+			// we don't want to join() our array, in case the separator that
+			// we choose is actually a part of the value.  instead, we'll just
+			// encode it as a JSON string and assume the field object which
+			// receives it knows how to proceed.
+			
+			$value = json_encode($value);
+		}
 		
 		$field->setError($fieldData->errorMessage ?? "");
-		$field->setValue($fieldData->value ?? "");
+		$field->setValue($value);
 		return $field;
 	}
 	
