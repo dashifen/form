@@ -54,6 +54,7 @@ class Validator implements ValidatorInterface {
 		// a ValidatorException in the catch block below.
 		
 		try {
+			$method->setAccessible(true);
 			return $method->invoke($this, $value, ...$parameters);
 		} catch (\ReflectionException $reflectionException) {
 			throw new ValidatorException(
