@@ -145,6 +145,7 @@ abstract class AbstractField implements FieldInterface {
 		// need to do it ourselves.
 		
 		$value = $fieldData->value ?? "";
+		
 		if (!is_string($value)) {
 			
 			// we don't want to join() our array, in case the separator that
