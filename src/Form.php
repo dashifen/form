@@ -46,6 +46,11 @@ class Form implements FormInterface {
 	/**
 	 * @var array
 	 */
+	protected $classes = [];
+	
+	/**
+	 * @var array
+	 */
 	protected $fieldsets = [];
 	
 	/**
@@ -86,6 +91,17 @@ class Form implements FormInterface {
 		$form->setMethod($formData->method ?? "post");
 		$form->setEnctype($formData->enctype ?? "application/x-www-form-urlencoded");
 		$form->setInstructions($formData->instructions ?? "");
+		
+		// a form's classes should be an array, but we might get them as a
+		// string.  if we do, we assume is a JSON string that we can decode
+		// to form the expected array.
+		
+		$classes = $formData->classes ?? "[]";
+		if (!is_array($classes)) {
+			$classes = json_decode($classes, true);
+		}
+		
+		$form->setClasses($classes);
 		
 		// now, for each of the fieldsets described within our form data
 		// object, we want to create a Fieldset object with its parse method
@@ -189,6 +205,22 @@ class Form implements FormInterface {
 	 */
 	public function setInstructions(string $instructions): void {
 		$this->instructions = $instructions;
+	}
+	
+	/**
+	 * @return array
+	 */
+	public function getClasses(): array {
+		return $this->classes;
+	}
+	
+	/**
+	 * @param array $classes
+	 *
+	 * @return void
+	 */
+	public function setClasses(array $classes) {
+		$this->classes = $classes;
 	}
 	
 	/**
@@ -345,7 +377,7 @@ class Form implements FormInterface {
 		// our <form> tag.  we always use the id and method.  but, then we
 		// might also use action and enctype.
 		
-		$attributes = ["id", "method"];
+		$attributes = ["id", "method", "class"];
 		
 		if (!is_null($this->action) && !empty($this->action)) {
 			$attributes[] = "action";
@@ -356,10 +388,16 @@ class Form implements FormInterface {
 		}
 		
 		// now, we'll build our <form> using the $attributes array we
-		// just created above.
+		// just created above.  most of our attributes can be accessed
+		// directly out of their properties, but the "class" attribute
+		// has to be constructed from the classes one using join().
 		
 		foreach ($attributes as &$attribute) {
-			$attribute = sprintf("%s=%s", $attribute, $this->{$attribute});
+			$attributeValue = $attribute === "class"
+				? join(" ", $this->classes)
+				: $this->{$attribute};
+			
+			$attribute = sprintf("%s=%s", $attribute, $attributeValue);
 		}
 		
 		$form = "<form " . join(" ", $attributes) . ">";
