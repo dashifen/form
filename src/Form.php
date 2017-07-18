@@ -392,15 +392,17 @@ class Form implements FormInterface {
 		// directly out of their properties, but the "class" attribute
 		// has to be constructed from the classes one using join().
 		
-		foreach ($attributes as &$attribute) {
+		$form = "<form";
+		
+		foreach ($attributes as $attribute) {
 			$attributeValue = $attribute === "class"
 				? join(" ", $this->classes)
 				: $this->{$attribute};
 			
-			$attribute = sprintf("%s=%s", $attribute, $attributeValue);
+			$form .= " $attribute=$attributeValue";
 		}
 		
-		$form = "<form " . join(" ", $attributes) . ">";
+		$form .= ">";
 		
 		// next, we use other methods of this object to add the content of
 		// our form before closing it up.
