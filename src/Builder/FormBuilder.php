@@ -37,6 +37,7 @@ class FormBuilder implements FormBuilderInterface {
 			"method"       => $description["method"] ?? "post",
 			"enctype"      => $description["enctype"] ?? "application/x-www-form-urlencoded",
 			"instructions" => $description["instructions"] ?? "",
+			"classes"      => $description["classes"] ?? "[]",
 			"fieldsets"    => [],
 		];
 	}
