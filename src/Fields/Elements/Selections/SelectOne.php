@@ -79,7 +79,7 @@ class SelectOne extends AbstractField {
 			<li class="%s">
 				%s
 				%s
-				<select id="%s" name="%s">
+				<select id="%s" name="%s" class="%s">
 					%s
 				</select>
 			</li>
@@ -91,6 +91,7 @@ class SelectOne extends AbstractField {
 			$this->getVerboseInstructions(),
 			$this->id,
 			$this->name,
+			$this->getClassesAsString(),
 			$options
 		);
 	}
@@ -248,7 +249,7 @@ class SelectOne extends AbstractField {
 		$format = '
 			<li class="radio">
 				<label>
-					<input type="radio" name="%s" value="%s"%s>
+					<input type="radio" name="%s" value="%s" class="%s"%s>
 					<span class="radio-label">%s</span>
 				</label>
 			</li>
@@ -257,7 +258,9 @@ class SelectOne extends AbstractField {
 		$radios = [];
 		foreach ($this->options as $value => $text) {
 			$checked = $this->value ? " checked" : "";
-			$radios[] = sprintf($format, $this->name, $value, $checked, $text);
+			$radios[] = sprintf($format, $this->name, $value,
+				$this->getClassesAsString(), $checked, $text
+			);
 		}
 		
 		return join("", $radios);
