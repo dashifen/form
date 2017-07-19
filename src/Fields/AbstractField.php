@@ -3,6 +3,16 @@
 namespace Dashifen\Form\Fields;
 
 abstract class AbstractField implements FieldInterface {
+	
+	/**
+	 * @var array
+	 *
+	 * to avoid finding the namespace for types over and over again,
+	 * we'll use this property to store them.  it's static so that we
+	 * can use it in the static getNamespacedType() method.
+	 */
+	protected static $types = [];
+	
 	protected $id;
 	protected $name;
 	protected $type;
@@ -16,19 +26,9 @@ abstract class AbstractField implements FieldInterface {
 	protected $error = false;
 	protected $value = "";
 	
-	/**
-	 * @var array
-	 *
-	 * to avoid finding the namespace for types over and over again,
-	 * we'll use this property to store them.  it's static so that we
-	 * can use it in the static getNamespacedType() method.
-	 */
-	protected static $types = [];
-	
 	// sometimes, some fields may need to restrict the ability to make
 	// changes to a its own properties.  in such a case, it sets the
 	// locked flag.
-	
 	protected $locked = false;
 	
 	public function __construct(string $id, string $name = "", string $label = "") {
@@ -80,10 +80,10 @@ abstract class AbstractField implements FieldInterface {
 		// setters after it's been constructed.  notice that these first
 		// three are interdependent;  their order is important.
 		
-		$id    = $fieldData->id    ?? uniqid("field-");
-		$name  = $fieldData->name  ?? $id;
+		$id = $fieldData->id ?? uniqid("field-");
+		$name = $fieldData->name ?? $id;
 		$label = $fieldData->label ?? ucwords(str_replace("-", " ", $name));
-		$type  = $fieldData->type  ?? "Text";
+		$type = $fieldData->type ?? "Text";
 		
 		// we use a variable constructor because this object is abstract.
 		// therefore, we need to call the constructor for the type of field
@@ -106,37 +106,49 @@ abstract class AbstractField implements FieldInterface {
 		
 		if (!$field->isLocked()) {
 			
-			// first, we want to handle our classes.  if our fieldData
-			// doesn't have an array within it, we'll assume it's a space-
-			// separated string of class names and explode() accordingly.
+			// first we handle our simply data types as follows.  these are
+			// simply strings, Booleans, etc. so the null coalescing operator
+			// is good at setting these up.
 			
-			$classes = $fieldData->classes ?? [];
-			if (!is_array($classes)) {
-				if (is_string($classes)) {
-					$classes = explode(" ", $classes);
-				} else {
-					throw new FieldException(
-						"Parse error: classes must be array or string",
-						FieldException::INVALID_CLASSES
-					);
-				}
-			}
-			
-			$field->setClasses($classes);
 			$field->setInstructions($fieldData->instructions ?? "");
 			$field->setRequired($fieldData->required ?? self::OPTIONAL);
-			$field->setOptions($fieldData->options ?? []);
 			
-			// if there are additional attributes for this field, we'll set
-			// those as well.  but, we want our attributes as an array and
-			// our decode above makes them an object.  so, we'll cast them
-			// if they're not in the right format which works because all
-			// of the properties are public after a JSON decode.
+			// now we need to mess with the more complex stuff.  we'll
+			// create an anonymous function here that we use for a few
+			// properties.  we use an anonymous function because this
+			// method is static.
 			
-			if (isset($fieldData->additionalAttributes)) {
-				$attributes = (array) $fieldData->additionalAttributes;
-				$field->setAdditionalAttributes($attributes);
-			}
+			$transformProperty = function($property): array {
+				
+				// our $property parameter can be one of three things: an
+				// array, object, or string.  if it's a string, we could
+				// have either a space separated string or JSON.  if it's
+				// an array, then we're already done:
+				
+				if (is_array($property)) {
+					return $property;
+				}
+				
+				// objects are easy, too:
+				
+				if (is_object($property)) {
+					return (array)$property;
+				}
+				
+				// and, for strings, we assume it's JSON until proven
+				// otherwise.  then, we assume it's a space-separated list.
+				
+				$temp = json_decode($property, true);
+				if (json_last_error() === JSON_ERROR_NONE) {
+					return $temp;
+				}
+				
+				return explode(" ", $property);
+			};
+			
+			$field->setAdditionalAttributes($transformProperty($fieldData->additionalAttributes ?? []));
+			$field->setClasses($transformProperty($fieldData->classes ?? []));
+			$field->setOptions($transformProperty($fieldData->options ?? []));
 		}
 		
 		// even if the field was locked, error message and values should
@@ -148,10 +160,10 @@ abstract class AbstractField implements FieldInterface {
 		
 		if (!is_string($value)) {
 			
-			// we don't want to join() our array, in case the separator that
-			// we choose is actually a part of the value.  instead, we'll just
-			// encode it as a JSON string and assume the field object which
-			// receives it knows how to proceed.
+			// we don't want to join() our $value in case the separator that
+			// we choose is actually a part of it.  instead, we'll just encode
+			// it as a JSON string and assume the field object which receives
+			// it knows how to proceed.
 			
 			$value = json_encode($value);
 		}
@@ -260,6 +272,10 @@ abstract class AbstractField implements FieldInterface {
 		$this->id = $id;
 	}
 	
+	public function getType(): string {
+		return $this->type;
+	}
+	
 	public function setType(string $type = ""): void {
 		if (empty($type)) {
 			
@@ -274,10 +290,6 @@ abstract class AbstractField implements FieldInterface {
 		}
 		
 		$this->type = $type;
-	}
-	
-	public function getType(): string {
-		return $this->type;
 	}
 	
 	/**
@@ -373,13 +385,6 @@ abstract class AbstractField implements FieldInterface {
 	}
 	
 	/**
-	 * @param array $additionalAttributes
-	 */
-	public function setAdditionalAttributes(array $additionalAttributes): void {
-		$this->additionalAttributes = $additionalAttributes;
-	}
-	
-	/**
 	 * @return array
 	 */
 	public function getAdditionalAttributes(): array {
@@ -387,30 +392,10 @@ abstract class AbstractField implements FieldInterface {
 	}
 	
 	/**
-	 * @param array $potentials
-	 *
-	 * @return string
+	 * @param array $additionalAttributes
 	 */
-	protected function getAttributesAsString(array $potentials): string {
-		$attributes = [];
-		
-		// the additional attributes - our potentials - that a Number
-		// field cares about are the step, min, and max attributes.  we
-		// loop over those and check for them in our additionalAttributes
-		// property.
-		
-		foreach ($potentials as $potential) {
-			if (isset($this->additionalAttributes[$potential])) {
-				$potentialValue = $this->additionalAttributes[$potential];
-				$attributes[] = sprintf('%s="%s"', $potential, $potentialValue);
-			}
-		}
-		
-		// by joining our attributes together, we'll get something that may
-		// look like this 'step="1" min="0" max="10"' which we return to the
-		// calling scope.
-		
-		return join(" ", $attributes);
+	public function setAdditionalAttributes(array $additionalAttributes): void {
+		$this->additionalAttributes = $additionalAttributes;
 	}
 	
 	/**
@@ -450,6 +435,33 @@ abstract class AbstractField implements FieldInterface {
 		if (!is_null($value)) {
 			$this->setValue($value);
 		}
+	}
+	
+	/**
+	 * @param array $potentials
+	 *
+	 * @return string
+	 */
+	protected function getAttributesAsString(array $potentials): string {
+		$attributes = [];
+		
+		// the additional attributes - our potentials - that a Number
+		// field cares about are the step, min, and max attributes.  we
+		// loop over those and check for them in our additionalAttributes
+		// property.
+		
+		foreach ($potentials as $potential) {
+			if (isset($this->additionalAttributes[$potential])) {
+				$potentialValue = $this->additionalAttributes[$potential];
+				$attributes[] = sprintf('%s="%s"', $potential, $potentialValue);
+			}
+		}
+		
+		// by joining our attributes together, we'll get something that may
+		// look like this 'step="1" min="0" max="10"' which we return to the
+		// calling scope.
+		
+		return join(" ", $attributes);
 	}
 	
 	/*
@@ -512,6 +524,7 @@ abstract class AbstractField implements FieldInterface {
 			<?php if ($this->required) { ?>
 				<i class="fa fa-star" aria-hidden="true" title="required"></i>
 			<?php }
+			
 			if ($this->error !== false) { ?>
 				<strong role="alert"><?= $this->errorMessage ?></strong>
 			<?php } ?>
