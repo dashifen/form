@@ -170,14 +170,16 @@ class SelectOneWithOther extends SelectOne {
 		// value is "?" we want to remove the other-hidden and add it other-
 		// wise.  the toggle() method of the classList object handles that.
 		
-		return <<<JAVASCRIPT
-			function $functionName(select) {
+		ob_start(); ?>
+		
+		<script type="text/javascript">
+			function <?= $functionName ?>(select) {
 				var other = select.nextElementSibling;
 				var value = select.options[select.selectedIndex].value;
 				other.classList.toggle("other-hidden", value !== "?");
-				return false;
 			}
-JAVASCRIPT;
-	
+		</script>
+		
+		<?php return ob_get_clean();
 	}
 }
