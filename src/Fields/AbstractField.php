@@ -136,8 +136,8 @@ abstract class AbstractField implements FieldInterface {
 				
 				// our $property parameter can be one of three things: an
 				// array, object, or string.  if it's a string, we could
-				// have either a space separated string or JSON.  if it's
-				// an array, then we're already done:
+				// have either a delimited string or JSON.  if it's an array,
+				// then we're already done:
 				
 				if (is_array($property)) {
 					return $property;
@@ -157,7 +157,12 @@ abstract class AbstractField implements FieldInterface {
 					return $temp;
 				}
 				
-				return explode(" ", $property);
+				// and, finally, there's one of two options for our delimiter.
+				// the ones we check for are spaces and pipes.  we'll check for
+				// pipes first and fall back on spaces.
+				
+				$delimiter = strpos($property, "|") !== false ? "|" : " ";
+				return explode($delimiter, $property);
 			};
 			
 			$field->setAdditionalAttributes($transformProperty($fieldData->additionalAttributes ?? []));
