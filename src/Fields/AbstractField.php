@@ -26,9 +26,16 @@ abstract class AbstractField implements FieldInterface {
 	protected $error = false;
 	protected $value = "";
 	
+	// some fields have JSON values; we only want to transform them
+	// once, and so we'll store transformed JSON values here when we
+	// need to.
+	
+	protected $transformedJsonValue = null;
+	
 	// sometimes, some fields may need to restrict the ability to make
 	// changes to a its own properties.  in such a case, it sets the
 	// locked flag.
+	
 	protected $locked = false;
 	
 	public function __construct(string $id, string $name = "", string $label = "") {
@@ -589,6 +596,42 @@ abstract class AbstractField implements FieldInterface {
 		return !empty($this->instructions)
 			? "<p>" . $this->instructions . "</p>"
 			: "";
+	}
+	
+	/**
+	 * @param array $default
+	 *
+	 * @return array
+	 * @throws FieldException
+	 */
+	protected function transformJsonValue(array $default = []): array {
+		if ($this->isEmpty()) {
+			return $default;
+		}
+		
+		// if we've already transformed our value, then it'll be in this
+		// property.  to avoid consistently transforming and re-transforming
+		// the value, we'll return our prior results if we have them.
+		
+		if (!is_null($this->transformedJsonValue)) {
+			return $this->transformedJsonValue;
+		}
+		
+		// now, we'll do our JSON transformation.  if we don't run into errors,
+		// we assume we're good to go until proven otherwise.  otherwise, we
+		// throw our exception and hope it's caught elsewhere.
+		
+		$values = json_decode($this->value, true);
+		if (json_last_error() !== JSON_ERROR_NONE) {
+			$message = sprintf("%s requires JSON value", $this->getType());
+			throw new FieldException($message, FieldException::INVALID_VALUE);
+		}
+		
+		// here's where we save our transformation for later.  we'll assign
+		// our $values to our property and then return those values by side
+		// effect as well.
+		
+		return ($this->transformedJsonValue = $values);
 	}
 	
 	/**

@@ -34,6 +34,8 @@ interface FieldInterface {
 	public function setId(string $id): void;
 	
 	/**
+	 * @param string $suffix
+	 *
 	 * @return string
 	 */
 	public function getId(string $suffix = ""): string;

@@ -112,7 +112,13 @@ class SelectOneWithOther extends SelectOne {
 	 * @return string
 	 */
 	public function getField(bool $display = false): string {
-		list($this->value, $this->other) = $this->transformValue();
+		
+		// to separate our value from our other value, we can use our parent's
+		// transformJsonValue() method.  the only thing we need to do is pass
+		// it a different default to make sure each of these start out empty
+		// if there's no current value.
+		
+		list($this->value, $this->other) = $this->transformJsonValue(["",""]);
 		
 		$field = parent::getField(false);
 		
@@ -133,36 +139,6 @@ class SelectOneWithOther extends SelectOne {
 		$field .= $this->getJavaScript($jsFunction);
 		
 		return parent::display($field, $display);
-	}
-	
-	/**
-	 * @return array
-	 * @throws FieldException
-	 */
-	protected function transformValue(): array {
-		if ($this->isEmpty()) {
-			return ["", ""];
-		}
-		
-		// if we've already transformed our values, we return what we
-		// found last time.  this should help us save some time if it's
-		// called over and over again.
-		
-		if (!is_null($this->values)) {
-			return $this->values;
-		}
-		
-		// now, if we'll decode our expected JSON string.  if we don't
-		// encounter errors, we can save our result and return it to the
-		// calling scope.  otherwise, we throw an exception.
-		
-		$values = json_decode($this->value, true);
-		if (json_last_error() === JSON_ERROR_NONE) {
-			return ($this->values = $values);
-		}
-		
-		throw new FieldException("SelectOneWithOther requires JSON value.",
-			FieldException::INVALID_VALUE);
 	}
 	
 	/**

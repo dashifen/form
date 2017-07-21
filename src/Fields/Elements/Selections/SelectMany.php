@@ -79,37 +79,6 @@ class SelectMany extends SelectOne {
 		// transformValues() method will take that string and make us our array
 		// of values.  then, the in_array() function will take us home.
 		
-		return in_array($optionValue, $this->transformValues());
-	}
-	
-	/**
-	 * @return array
-	 * @throws FieldException
-	 */
-	protected function transformValues(): array {
-		if ($this->isEmpty()) {
-			return [];
-		}
-		
-		// if we've already transformed our values before, we'll return
-		// what we found last time.  this should save a little time since
-		// this method will likely end up being called via a loop as we
-		// iterate over our option values.
-		
-		if (!is_null($this->values)) {
-			return $this->values;
-		}
-		
-		// our value should be a JSON string representing the many values for
-		// this field.  but, we need to decode it.  if we don't run into any
-		// JSON errors, we're good to go.  if we do, we throw an exception.
-		
-		$values = json_decode($this->value, true);
-		if (json_last_error() === JSON_ERROR_NONE) {
-			return ($this->values = $values);
-		}
-		
-		throw new FieldException("SelectMany requires JSON value.",
-			FieldException::INVALID_VALUE);
+		return in_array($optionValue, $this->transformJsonValue());
 	}
 }
