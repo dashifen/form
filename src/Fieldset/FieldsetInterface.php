@@ -57,11 +57,18 @@ interface FieldsetInterface {
 	public function getFields(): array;
 	
 	/**
-	 * @param string $fieldId
+	 * @param string $id
 	 *
 	 * @return bool
 	 */
-	public function hasField(string $fieldId): bool;
+	public function hasField(string $id): bool;
+	
+	/**
+	 * @param string $id
+	 *
+	 * @return FieldInterface|null
+	 */
+	public function getField(string $id): ?FieldInterface;
 	
 	/**
 	 * @param string      $fieldId

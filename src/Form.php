@@ -347,6 +347,24 @@ class Form implements FormInterface {
 	}
 	
 	/**
+	 * @param string $id
+	 *
+	 * @return FieldInterface|null
+	 */
+	public function getField(string $id): ?FieldInterface {
+		
+		// for a form to get a specific field requires that we look for the
+		// fieldset in which that field has been added.  so, we loop over the
+		// sets, and when we find our field, we return it.
+		
+		foreach ($this->fieldsets as $fieldset) {
+			if ($fieldset->hasField($id)) {
+				return $fieldset->getField($id);
+			}
+		}
+	}
+	
+	/**
 	 * @param array $buttons
 	 *
 	 * @throws FormException

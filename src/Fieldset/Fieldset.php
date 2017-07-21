@@ -201,6 +201,26 @@ class Fieldset implements FieldsetInterface {
 	}
 	
 	/**
+	 * @param string $id
+	 *
+	 * @return FieldInterface|null
+	 */
+	public function getField(string $id): ?FieldInterface {
+		
+		// to find the field that we actually want to return, we loop over
+		// the fields this set contains.  when we find the one with an id that
+		// matches our parameter, we return it.
+		
+		foreach ($this->fields as $field) {
+			if ($field->getId() === $id) {
+				return $field;
+			}
+		}
+		
+		return null;
+	}
+	
+	/**
 	 * @param string $fieldId
 	 *
 	 * @return bool

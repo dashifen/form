@@ -143,6 +143,13 @@ interface FormInterface {
 	public function getFields(): array;
 	
 	/**
+	 * @param string $id
+	 *
+	 * @return FieldInterface|null
+	 */
+	public function getField(string $id): ?FieldInterface;
+	
+	/**
 	 * @param string $jsonForm
 	 *
 	 * @return FormInterface
