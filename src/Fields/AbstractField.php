@@ -38,6 +38,12 @@ abstract class AbstractField implements FieldInterface {
 	
 	protected $locked = false;
 	
+	// most fields have an expected field count of 1.  that is, there's
+	// 1 element in the DOM that has a value that makes up this field.
+	// but, others need more than that so they can change this property.
+	
+	protected $productFieldCount = 1;
+	
 	public function __construct(string $id, string $name = "", string $label = "") {
 		
 		// if our name is empty, we'll make it match our id.  then, we can
@@ -488,6 +494,13 @@ abstract class AbstractField implements FieldInterface {
 		if (!is_null($value)) {
 			$this->setValue($value);
 		}
+	}
+	
+	/**
+	 * @return int
+	 */
+	public function getProductFieldCount(): int {
+		return $this->productFieldCount;
 	}
 	
 	/**

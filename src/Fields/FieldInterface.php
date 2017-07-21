@@ -149,6 +149,11 @@ interface FieldInterface {
 	public function getError(): string;
 	
 	/**
+	 * @return int
+	 */
+	public function getProductFieldCount(): int;
+	
+	/**
 	 * @param bool $display
 	 *
 	 * @return string

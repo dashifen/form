@@ -24,6 +24,11 @@ class SelectOneWithOther extends SelectOne {
 	protected $values = null;
 	
 	/**
+	 * @var int
+	 */
+	protected $productFieldCount = 2;
+	
+	/**
 	 * @return string
 	 */
 	public function getOther(): string {
