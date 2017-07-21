@@ -173,8 +173,7 @@ abstract class AbstractField implements FieldInterface {
 		
 		// even if the field was locked, error message and values should
 		// still be set.  most of the time, our values come to us as strings,
-		// or things that can be cast as strings, but if it's an array, we'll
-		// need to do it ourselves.
+		// but if it's not, we'll JSON-ify it.
 		
 		$value = $fieldData->value ?? "";
 		
@@ -188,8 +187,9 @@ abstract class AbstractField implements FieldInterface {
 			$value = json_encode($value);
 		}
 		
-		$field->setError($fieldData->errorMessage ?? "");
 		$field->setValue($value);
+		$field->setError((bool)$fieldData->error ?? false);
+		$field->setErrorMessage($fieldData->errorMessage ?? "");
 		return $field;
 	}
 	
@@ -479,42 +479,31 @@ abstract class AbstractField implements FieldInterface {
 	}
 	
 	/**
-	 * @param string|null $value
+	 * @return bool
 	 */
-	public function resetError(string $value = null): void {
-		
-		// resetting our error message is as simply as sending an empty
-		// string to the prior method along with our optional value.
-		
-		$this->setError("", $value);
+	public function getError(): bool {
+		return $this->error;
+	}
+	
+	/**
+	 * @param bool $error
+	 */
+	public function setError(bool $error): void {
+		$this->error = $error;
+	}
+	
+	/**
+	 * @param string $errorMessage
+	 */
+	public function setErrorMessage(string $errorMessage): void {
+		$this->errorMessage = $errorMessage;
 	}
 	
 	/**
 	 * @return string
 	 */
-	public function getError(): string {
+	public function getErrorMessage(): string {
 		return $this->errorMessage;
-	}
-	
-	/**
-	 * @param string      $error
-	 * @param string|null $value
-	 */
-	public function setError(string $error, string $value = null): void {
-		
-		// when setting an error, we want to save the error message that
-		// was passed here as well as set our error flag.  both are used
-		// in the getLabel() method below.
-		
-		$this->errorMessage = $error;
-		$this->error = !empty($error);
-		
-		// if a value was sent here, too, we'll set that, too.  this is
-		// mostly for our convenience.
-		
-		if (!is_null($value)) {
-			$this->setValue($value);
-		}
 	}
 	
 	/**

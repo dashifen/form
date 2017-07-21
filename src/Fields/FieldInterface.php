@@ -143,20 +143,24 @@ interface FieldInterface {
 	public function getValidation(): array;
 	
 	/**
-	 * @param string      $error
-	 * @param string|null $value
+	 * @param bool $error
 	 */
-	public function setError(string $error, string $value = null): void;
+	public function setError(bool $error): void;
 	
 	/**
-	 * @param string|null $value
+	 * @return bool
 	 */
-	public function resetError(string $value = null): void;
+	public function getError(): bool;
+	
+	/**
+	 * @param string $errorMessage
+	 */
+	public function setErrorMessage(string $errorMessage): void;
 	
 	/**
 	 * @return string
 	 */
-	public function getError(): string;
+	public function getErrorMessage(): string;
 	
 	/**
 	 * @return int
