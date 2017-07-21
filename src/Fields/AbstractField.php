@@ -94,10 +94,10 @@ abstract class AbstractField implements FieldInterface {
 		// setters after it's been constructed.  notice that these first
 		// three are interdependent;  their order is important.
 		
-		$id = $fieldData->id ?? uniqid("field-");
-		$name = $fieldData->name ?? $id;
+		$id    = $fieldData->id    ?? uniqid("field-");
+		$name  = $fieldData->name  ?? $id;
 		$label = $fieldData->label ?? ucwords(str_replace("-", " ", $name));
-		$type = $fieldData->type ?? "Text";
+		$type  = $fieldData->type  ?? "Text";
 		
 		// we use a variable constructor because this object is abstract.
 		// therefore, we need to call the constructor for the type of field
@@ -161,6 +161,7 @@ abstract class AbstractField implements FieldInterface {
 			};
 			
 			$field->setAdditionalAttributes($transformProperty($fieldData->additionalAttributes ?? []));
+			$field->setValidation($transformProperty($fieldData->validation ?? []));
 			$field->setClasses($transformProperty($fieldData->classes ?? []));
 			$field->setOptions($transformProperty($fieldData->options ?? []));
 		}
