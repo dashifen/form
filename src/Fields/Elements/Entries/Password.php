@@ -2,6 +2,11 @@
 
 namespace Dashifen\Form\Fields\Elements\Entries;
 
+/**
+ * Class Password
+ *
+ * @package Dashifen\Form\Fields\Elements\Entries
+ */
 class Password extends Text {
 	
 	// here's a weird one:  we actually don't need to do anything

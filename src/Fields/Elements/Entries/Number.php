@@ -2,7 +2,17 @@
 
 namespace Dashifen\Form\Fields\Elements\Entries;
 
+/**
+ * Class Number
+ *
+ * @package Dashifen\Form\Fields\Elements\Entries
+ */
 class Number extends Text {
+	/**
+	 * @param bool $display
+	 *
+	 * @return string
+	 */
 	public function getField(bool $display = false): string {
 		$input = parent::getField($display);
 		

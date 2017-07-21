@@ -4,6 +4,11 @@ namespace Dashifen\Form\Fields\Elements\Entries;
 
 use Dashifen\Form\Fields\AbstractField;
 
+/**
+ * Class Text
+ *
+ * @package Dashifen\Form\Fields\Elements\Entries
+ */
 class Text extends AbstractField {
 	/**
 	 * @param bool $display
@@ -28,13 +33,13 @@ class Text extends AbstractField {
 			$this->getLiClass(),
 			$this->getLabel(),
 			$this->getVerboseInstructions(),
-			$this->type,
-			$this->id,
-			$this->name,
+			$this->getType(),
+			$this->getId(),
+			$this->getName(),
 			$this->getClassesAsString(),
-			$this->value,
-			$this->required ? "true" : "false",
-			$this->required ? " required" : ""
+			$this->getValue(),
+			$this->getRequired() ? "true" : "false",
+			$this->getRequired() ? " required" : ""
 		);
 		
 		return parent::display($field, $display);

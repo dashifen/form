@@ -22,6 +22,11 @@ interface FieldInterface {
 	 * @return bool
 	 */
 	public function isLocked(): bool;
+	
+	/**
+	 * @return bool
+	 */
+	public function isEmpty(): bool;
 
 	/**
 	 * @param string $id
@@ -31,7 +36,19 @@ interface FieldInterface {
 	/**
 	 * @return string
 	 */
-	public function getId(): string;
+	public function getId(string $suffix = ""): string;
+	
+	/**
+	 * @param string $name
+	 */
+	public function setName(string $name): void;
+	
+	/**
+	 * @param string $suffix
+	 *
+	 * @return string
+	 */
+	public function getName(string $suffix = ""): string;
 	
 	/**
 	 * @param string $type

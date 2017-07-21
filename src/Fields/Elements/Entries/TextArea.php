@@ -4,6 +4,11 @@ namespace Dashifen\Form\Fields\Elements\Entries;
 
 use Dashifen\Form\Fields\AbstractField;
 
+/**
+ * Class TextArea
+ *
+ * @package Dashifen\Form\Fields\Elements\Entries
+ */
 class TextArea extends AbstractField {
 	/**
 	 * @param bool $display
@@ -30,11 +35,11 @@ class TextArea extends AbstractField {
 			$this->getLiClass(),
 			$this->getLabel(),
 			$this->getVerboseInstructions(),
-			$this->id,
-			$this->name,
+			$this->getId(),
+			$this->getName(),
 			$this->getClassesAsString(),
-			$this->required ? "true" : "false",
-			$this->required ? " required" : ""
+			$this->getRequired() ? "true" : "false",
+			$this->getRequired() ? " required" : ""
 		);
 		
 		return parent::display($textarea, $display);

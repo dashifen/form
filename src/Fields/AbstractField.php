@@ -259,10 +259,28 @@ abstract class AbstractField implements FieldInterface {
 	}
 	
 	/**
+	 * @return bool
+	 */
+	public function isEmpty(): bool {
+		return empty($this->value);
+	}
+	
+	/**
+	 * @param string $suffix
+	 *
 	 * @return string
 	 */
-	public function getId(): string {
-		return $this->id;
+	public function getId(string $suffix = ""): string {
+		
+		// some fields use simply their ID in the DOM to identify a field.
+		// but others, especially those which may have multiple elements to
+		// create a single Field, may use suffixes to differentiate between
+		// elements.  when $suffix is not empty, we append it to our ID
+		// property; otherwise, we just return our property.
+		
+		return !empty($suffix)
+			? sprintf("%s-%s", $this->id, $suffix)
+			: $this->id;
 	}
 	
 	/**
@@ -272,6 +290,34 @@ abstract class AbstractField implements FieldInterface {
 		$this->id = $id;
 	}
 	
+	/**
+	 * @param string $name
+	 */
+	public function setName(string $name): void {
+		$this->name = $name;
+	}
+	
+	/**
+	 * @param string $suffix
+	 *
+	 * @return string
+	 */
+	public function getName(string $suffix = ""): string {
+		
+		// some fields use simply their name in the DOM to identify a field.
+		// but others, especially those which may have multiple elements to
+		// create a single Field, may use suffixes to differentiate between
+		// elements.  when $suffix is not empty, we append it to our name
+		// property; otherwise, we just return our property.
+		
+		return !empty($suffix)
+			? sprintf("%s-%s", $this->name, $suffix)
+			: $this->name;
+	}
+	
+	/**
+	 * @return string
+	 */
 	public function getType(): string {
 		return $this->type;
 	}

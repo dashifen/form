@@ -2,7 +2,19 @@
 
 namespace Dashifen\Form\Fields\Elements\Entries;
 
+/**
+ * Class Honeypot
+ *
+ * @package Dashifen\Form\Fields\Elements\Entries
+ */
 class Honeypot extends Text {
+	/**
+	 * Honeypot constructor.
+	 *
+	 * @param string $id
+	 * @param string $name
+	 * @param string $label
+	 */
 	public function __construct($id, $name = "", $label = "") {
 		parent::__construct($id, $name, $label);
 	
@@ -32,6 +44,11 @@ INSTRUCTIONS;
 		$this->locked = true;
 	}
 	
+	/**
+	 * @param bool $display
+	 *
+	 * @return string
+	 */
 	public function getField(bool $display = false): string {
 		
 		// the only thing we want to do here is remove the honeypot field

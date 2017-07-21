@@ -19,6 +19,11 @@ class SelectOneWithOther extends SelectOne {
 	protected $other = "";
 	
 	/**
+	 * @var array $values
+	 */
+	protected $values = null;
+	
+	/**
 	 * @return string
 	 */
 	public function getOther(): string {
@@ -30,6 +35,24 @@ class SelectOneWithOther extends SelectOne {
 	 */
 	public function setOther(string $other) {
 		$this->other = $other;
+	}
+	
+	/**
+	 * @param string $suffix
+	 *
+	 * @return string
+	 */
+	public function getId(string $suffix = "known"): string {
+		return sprintf("%s-%s", $this->id, $suffix);
+	}
+	
+	/**
+	 * @param string $suffix
+	 *
+	 * @return string
+	 */
+	public function getName(string $suffix = "known"): string {
+		return sprintf("%s-%s", $this->name, $suffix);
 	}
 	
 	/**
@@ -84,65 +107,20 @@ class SelectOneWithOther extends SelectOne {
 	}
 	
 	/**
-	 * @param string $value
-	 *
-	 * @return void
-	 * @throws FieldException
-	 */
-	public function setValue(string $value): void {
-		
-		// when setting the value for this element, we might have a JSON
-		// string defining both the selection's value and the other.  or,
-		// it might just be the value.  we can check as follows.
-		
-		$temp = json_decode($value, true);
-		if (json_last_error() === JSON_ERROR_NONE) {
-			
-			// if we don't have a JSON error, then we'll assume that we have
-			// both a value and an other and handle things accordingly.
-			
-			if (sizeof($temp) >= 2) {
-				parent::setValue($temp[0]);
-				$this->setOther($temp[1]);
-			} else {
-				throw new FieldException(
-					"Setting a SelectOneWithOther's value requires both an index and other value.",
-					FieldException::NOT_ENOUGH_VALUES
-				);
-			}
-		} else {
-			
-			// otherwise, we just use $value as this fields value, and we
-			// leave the other alone for the moment.
-			
-			parent::setValue($value);
-		}
-	}
-	
-	/**
-	 * @return string
-	 */
-	public function getValue(): string {
-		
-		// the normal SelectOne's value is just the value property, but for
-		// this element, we need to send back the other property, too.
-		
-		return json_encode([$this->value, $this->other]);
-	}
-	
-	/**
 	 * @param bool $display
 	 *
 	 * @return string
 	 */
 	public function getField(bool $display = false): string {
+		list($this->value, $this->other) = $this->transformValue();
+		
 		$field = parent::getField(false);
 		
 		// to construct this field, we have to add an input[type=text] field
 		// following the select element that $field currently contains.
 		
-		$format = '<input type="text" id="%s-other" name="%s-other" class="%s other other-hidden" value="%s">';
-		$input = sprintf($format, $this->id, $this->name, $this->getClassesAsString(), $this->getOther());
+		$format = '<input type="text" id="%s" name="%s" class="%s other other-hidden" value="%s">';
+		$input = sprintf($format, $this->getId("unknown"), $this->getName("unknown"), $this->getClassesAsString(), $this->getOther());
 		$field = str_replace("</select>", "$input</select>", $field);
 		
 		// but, that's not quite enough; we also need to add the behavior that
@@ -155,6 +133,36 @@ class SelectOneWithOther extends SelectOne {
 		$field .= $this->getJavaScript($jsFunction);
 		
 		return parent::display($field, $display);
+	}
+	
+	/**
+	 * @return array
+	 * @throws FieldException
+	 */
+	protected function transformValue(): array {
+		if ($this->isEmpty()) {
+			return ["", ""];
+		}
+		
+		// if we've already transformed our values, we return what we
+		// found last time.  this should help us save some time if it's
+		// called over and over again.
+		
+		if (!is_null($this->values)) {
+			return $this->values;
+		}
+		
+		// now, if we'll decode our expected JSON string.  if we don't
+		// encounter errors, we can save our result and return it to the
+		// calling scope.  otherwise, we throw an exception.
+		
+		$values = json_decode($this->value, true);
+		if (json_last_error() === JSON_ERROR_NONE) {
+			return ($this->values = $values);
+		}
+		
+		throw new FieldException("SelectOneWithOther requires JSON value.",
+			FieldException::INVALID_VALUE);
 	}
 	
 	/**

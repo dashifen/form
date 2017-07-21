@@ -1,13 +1,26 @@
 <?php
 
 namespace Dashifen\Form\Fields\Elements\Selections;
+use Dashifen\Form\Fields\FieldException;
 
+/**
+ * Class SelectMany
+ *
+ * Our SelectMany selection is very similar to the SelectOne
+ * field.  we can extend that one to build this one and override
+ * some of its methods here to make this one work.
+ *
+ * @package Dashifen\Form\Fields\Elements\Selections
+ */
 class SelectMany extends SelectOne {
+	/**
+	 * @var array $values
+	 */
+	protected $values = null;
 	
-	// our SelectMany selection is very similar to the SelectOne
-	// field.  we can extend that one to build this one and override
-	// some of its methods here to make this one work.
-	
+	/**
+	 * @return string
+	 */
 	protected function getDefaultDisplay(): string {
 		
 		// our SelectMany element can be either a fieldset of checkboxes,
@@ -17,6 +30,9 @@ class SelectMany extends SelectOne {
 		return "fieldset";
 	}
 	
+	/**
+	 * @return string
+	 */
 	protected function getInputsAsString(): string {
 		$radios = parent::getInputsAsString();
 		
@@ -50,5 +66,50 @@ class SelectMany extends SelectOne {
 		$size = ($count = floor($optionCount/2)) < 10 ? $count : 10;
 		$replacement = sprintf('<select size="%s" multiple ', $size);
 		return str_replace('<select', $replacement, $select);
+	}
+	
+	/**
+	 * @param string $optionValue
+	 *
+	 * @return bool
+	 */
+	protected function isSelected(string $optionValue): bool {
+		
+		// this field's value is an array (technically, a JSON string).  the
+		// transformValues() method will take that string and make us our array
+		// of values.  then, the in_array() function will take us home.
+		
+		return in_array($optionValue, $this->transformValues());
+	}
+	
+	/**
+	 * @return array
+	 * @throws FieldException
+	 */
+	protected function transformValues(): array {
+		if ($this->isEmpty()) {
+			return [];
+		}
+		
+		// if we've already transformed our values before, we'll return
+		// what we found last time.  this should save a little time since
+		// this method will likely end up being called via a loop as we
+		// iterate over our option values.
+		
+		if (!is_null($this->values)) {
+			return $this->values;
+		}
+		
+		// our value should be a JSON string representing the many values for
+		// this field.  but, we need to decode it.  if we don't run into any
+		// JSON errors, we're good to go.  if we do, we throw an exception.
+		
+		$values = json_decode($this->value, true);
+		if (json_last_error() === JSON_ERROR_NONE) {
+			return ($this->values = $values);
+		}
+		
+		throw new FieldException("SelectMany requires JSON value.",
+			FieldException::INVALID_VALUE);
 	}
 }

@@ -89,8 +89,8 @@ class SelectOne extends AbstractField {
 			$this->getLiClass(),
 			$this->getLabel(),
 			$this->getVerboseInstructions(),
-			$this->id,
-			$this->name,
+			$this->getId(),
+			$this->getName(),
 			$this->getClassesAsString(),
 			$options
 		);
@@ -158,6 +158,11 @@ class SelectOne extends AbstractField {
 		return (int)ceil(($max_indentation - 1) / 2) + 1;
 	}
 	
+	/**
+	 * @param array $originals
+	 *
+	 * @return string
+	 */
 	protected function getUngroupedOptions(array $originals = []): string {
 		
 		// in order to use this method not just for our options property but
@@ -177,7 +182,7 @@ class SelectOne extends AbstractField {
 		$options = [];
 		$format = '<option value="%s"%s>%s</option>';
 		foreach ($originals as $value => $text) {
-			$selected = $value == $this->value ? " selected" : "";
+			$selected = $this->isSelected($value) ? " selected" : "";
 			$options[] = sprintf($format, $value, $selected, $text);
 		}
 		
@@ -227,13 +232,16 @@ class SelectOne extends AbstractField {
 		
 		return sprintf($format,
 			$this->getLiClass([$this->extraType]),
-			$this->id,
+			$this->getId(),
 			$this->getLabel(),
 			$radios
 		);
 	}
 	
-	protected function getInputsAsString() {
+	/**
+	 * @return string
+	 */
+	protected function getInputsAsString(): string {
 		
 		// similar to our getOptionsAsString method above, we want to confirm
 		// that we have options and that they are single-dimensional.  then,
@@ -257,12 +265,27 @@ class SelectOne extends AbstractField {
 		
 		$radios = [];
 		foreach ($this->options as $value => $text) {
-			$checked = $this->value ? " checked" : "";
-			$radios[] = sprintf($format, $this->name, $value,
+			$checked = $this->isSelected($value) ? " checked" : "";
+			$radios[] = sprintf($format, $this->getName(), $value,
 				$this->getClassesAsString(), $checked, $text
 			);
 		}
 		
 		return join("", $radios);
+	}
+	
+	/**
+	 * @param string $optionOptionValue
+	 *
+	 * @return bool
+	 */
+	protected function isSelected(string $optionOptionValue): bool {
+		
+		// determining if this option is selected (or checked) is an important
+		// part of some methods above, but it's also different when we're
+		// selecting many options with our children.  so, despite it's
+		// simplicity, we separate it into its own method here.
+		
+		return $optionOptionValue === $this->value ? true : false;
 	}
 }

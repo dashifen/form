@@ -9,12 +9,47 @@ use Dashifen\Form\Fields\Traits\TypeTrait;
 class Button extends AbstractField {
 	use IconTrait, TypeTrait;
 	
+	/**
+	 * @var string
+	 */
 	protected $defaultIcon = "fa-chevron-circle-right";
 	
+	/**
+	 * Button constructor.
+	 *
+	 * @param string $id
+	 * @param string $name
+	 * @param string $label
+	 */
 	public function __construct($id, $name = "", $label = "") {
 		parent::__construct($id, $name, $label);
 		$this->setIcon($this->defaultIcon);
 		$this->setExtraType("button");
+	}
+	
+	/**
+	 * @return bool
+	 */
+	public function isEmpty(): bool {
+		
+		// buttons don't have values but they also cannot be empty.  so
+		// we just return false here.
+		
+		return false;
+	}
+	
+	/**
+	 * @param array $classes
+	 *
+	 * @return string
+	 */
+	public function getLabel(array $classes = []): string {
+		
+		// buttons aren't the same as other fields; their labels aren't
+		// <label> elements but just the value of our label property.  so,
+		// we just return that now.
+		
+		return $this->label;
 	}
 	
 	/**
@@ -55,10 +90,10 @@ class Button extends AbstractField {
 	
 	public function getField(bool $display = false): string {
 		$field = sprintf('<button type="%s" class="%s">%s%s</button>',
-			$this->extraType,
+			$this->getExtraType(),
 			$this->getClassesAsString(),
 			$this->getIcon(),
-			$this->label
+			$this->getLabel()
 		);
 		
 		return parent::display($field, $display);
