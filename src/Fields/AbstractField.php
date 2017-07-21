@@ -23,6 +23,7 @@ abstract class AbstractField implements FieldInterface {
 	protected $instructions = "";
 	protected $errorMessage = "";
 	protected $additionalAttributes = [];
+	protected $validation = [];
 	protected $error = false;
 	protected $value = "";
 	
@@ -455,6 +456,20 @@ abstract class AbstractField implements FieldInterface {
 	 */
 	public function setAdditionalAttributes(array $additionalAttributes): void {
 		$this->additionalAttributes = $additionalAttributes;
+	}
+	
+	/**
+	 * @param array $validation
+	 */
+	public function setValidation(array $validation): void {
+		$this->validation = $validation;
+	}
+	
+	/**
+	 * @return array
+	 */
+	public function getValidation(): array {
+		return $this->validation;
 	}
 	
 	/**

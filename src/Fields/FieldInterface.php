@@ -133,6 +133,16 @@ interface FieldInterface {
 	public function getAdditionalAttributes(): array;
 	
 	/**
+	 * @param array $validation
+	 */
+	public function setValidation(array $validation): void;
+	
+	/**
+	 * @return array
+	 */
+	public function getValidation(): array;
+	
+	/**
 	 * @param string      $error
 	 * @param string|null $value
 	 */
