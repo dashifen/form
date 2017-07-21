@@ -52,6 +52,11 @@ interface FieldsetInterface {
 	public function addFields(array $fields): void;
 	
 	/**
+	 * @return array
+	 */
+	public function getFields(): array;
+	
+	/**
 	 * @param string $fieldId
 	 *
 	 * @return bool

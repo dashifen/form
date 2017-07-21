@@ -80,6 +80,11 @@ interface FormInterface {
 	public function addFieldset(FieldsetInterface $fieldset): void;
 	
 	/**
+	 * @return array
+	 */
+	public function getFieldsets(): array;
+	
+	/**
 	 * @param string $field
 	 * @param string $value
 	 *
@@ -131,6 +136,11 @@ interface FormInterface {
 	 * @return string
 	 */
 	public function getForm(bool $display = true): string;
+	
+	/**
+	 * @return array
+	 */
+	public function getFields(): array;
 	
 	/**
 	 * @param string $jsonForm

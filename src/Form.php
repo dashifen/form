@@ -255,6 +255,13 @@ class Form implements FormInterface {
 	}
 	
 	/**
+	 * @return array
+	 */
+	public function getFieldsets(): array {
+		return $this->fieldsets;
+	}
+	
+	/**
 	 * @param string $field
 	 * @param string $value
 	 */
@@ -319,6 +326,24 @@ class Form implements FormInterface {
 		
 		$this->setInstructions($instructions);
 		$this->error = $state;
+	}
+	
+	/**
+	 * @return array
+	 */
+	public function getFields(): array {
+		
+		// getting our form's fields is a little complicated because they're
+		// actually collected by our fieldsets.  so, we'll loop over those and
+		// get their fields, merging them all together into one giant field
+		// list.
+		
+		$fields = [];
+		foreach ($this->fieldsets as $fieldset) {
+			$fields = array_merge($fields, $fieldset->getFields());
+		}
+		
+		return $fields;
 	}
 	
 	/**

@@ -194,6 +194,13 @@ class Fieldset implements FieldsetInterface {
 	}
 	
 	/**
+	 * @return array
+	 */
+	public function getFields(): array {
+		return $this->fields;
+	}
+	
+	/**
 	 * @param string $fieldId
 	 *
 	 * @return bool
