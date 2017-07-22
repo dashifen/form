@@ -111,7 +111,8 @@ class FormBuilder implements FormBuilderInterface {
 			"instructions"         => $description["instructions"] ?? "",
 			"errorMessage"         => $description["errorMessage"] ?? "",
 			"additionalAttributes" => $description["additionalAttributes"] ?? [],
-			"value"                => $description["value"],
+			"error"                => (bool)($description["error"] ?? false),
+			"value"                => $description["value"] ?? "",
 		];
 		
 		if (isset($description["name"])) {

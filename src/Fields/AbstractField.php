@@ -188,7 +188,7 @@ abstract class AbstractField implements FieldInterface {
 		}
 		
 		$field->setValue($value);
-		$field->setError((bool)$fieldData->error ?? false);
+		$field->setError((bool)($fieldData->error ?? false));
 		$field->setErrorMessage($fieldData->errorMessage ?? "");
 		return $field;
 	}
