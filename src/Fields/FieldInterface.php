@@ -165,7 +165,7 @@ interface FieldInterface {
 	/**
 	 * @return int
 	 */
-	public function getProductFieldCount(): int;
+	public function getFieldElementCount(): int;
 	
 	/**
 	 * @param bool $display

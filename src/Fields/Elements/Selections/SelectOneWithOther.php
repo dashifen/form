@@ -26,7 +26,7 @@ class SelectOneWithOther extends SelectOne {
 	/**
 	 * @var int
 	 */
-	protected $productFieldCount = 2;
+	protected $fieldElementCount = 2;
 	
 	/**
 	 * @return string

@@ -39,11 +39,12 @@ abstract class AbstractField implements FieldInterface {
 	
 	protected $locked = false;
 	
-	// most fields have an expected field count of 1.  that is, there's
-	// 1 element in the DOM that has a value that makes up this field.
+	// most fields have an expected element count of one.  that is, there's
+	// one element in the DOM that has a value that makes up this field.
 	// but, others need more than that so they can change this property.
+	// NOTE: this property does not have a setter; only a getter.
 	
-	protected $productFieldCount = 1;
+	protected $fieldElementCount = 1;
 	
 	public function __construct(string $id, string $name = "", string $label = "") {
 		
@@ -509,8 +510,8 @@ abstract class AbstractField implements FieldInterface {
 	/**
 	 * @return int
 	 */
-	public function getProductFieldCount(): int {
-		return $this->productFieldCount;
+	public function getFieldElementCount(): int {
+		return $this->fieldElementCount;
 	}
 	
 	/**
