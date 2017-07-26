@@ -128,10 +128,13 @@ class SelectOneWithOther extends SelectOne {
 		$field = parent::getField(false);
 		
 		// to construct this field, we have to add an input[type=text] field
-		// following the select element that $field currently contains.
+		// following the select element that $field currently contains.  most
+		// of what we do here is pretty obvious, but we do want to allow a
+		// placeholder if they want to use it.
 		
-		$format = '<input type="text" id="%s" name="%s" class="%s other other-hidden" value="%s">';
-		$input = sprintf($format, $this->getId("unknown"), $this->getName("unknown"), $this->getClassesAsString(), $this->getOther());
+		$attributes = $this->getAttributesAsString(["placeholder"]);
+		$format = '<input type="text" id="%s" name="%s" class="%s other other-hidden" %s value="%s">';
+		$input = sprintf($format, $this->getId("unknown"), $this->getName("unknown"), $this->getClassesAsString(), $attributes, $this->getOther());
 		$field = str_replace("</select>", "$input</select>", $field);
 		
 		// but, that's not quite enough; we also need to add the behavior that
