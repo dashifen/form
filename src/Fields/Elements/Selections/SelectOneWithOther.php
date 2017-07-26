@@ -1,6 +1,7 @@
 <?php
 
 namespace Dashifen\Form\Fields\Elements\Selections;
+
 use Dashifen\Form\Fields\FieldException;
 
 /**
@@ -64,11 +65,11 @@ class SelectOneWithOther extends SelectOne {
 	 * @return string
 	 */
 	protected function getDefaultDisplay(): string {
-	
+		
 		// our parent will determine the default display based on the number
 		// of options to display.  here, though, we just want a <select>
 		// element to facilitate easy identification of when things change.
-
+		
 		return "select";
 	}
 	
@@ -88,11 +89,11 @@ class SelectOneWithOther extends SelectOne {
 	 * @return void
 	 */
 	protected function addWithOtherClass(): void {
-	
+		
 		// if our with-other class is not already a part of this object,
 		// then we'll add it here.  this function may get called a few times,
 		// but we only add it if needed the first time.
-
+		
 		if (!in_array("with-other", $this->classes)) {
 			$this->classes[] = "with-other";
 		}
@@ -123,7 +124,10 @@ class SelectOneWithOther extends SelectOne {
 		// it a different default to make sure each of these start out empty
 		// if there's no current value.
 		
-		list($this->value, $this->other) = $this->transformJsonValue(["",""]);
+		list($this->value, $this->other) = $this->transformJsonValue([
+			"known"   => "",
+			"unknown" => "",
+		]);
 		
 		$field = parent::getField(false);
 		
@@ -150,6 +154,15 @@ class SelectOneWithOther extends SelectOne {
 	}
 	
 	/**
+	 * @param array $default
+	 *
+	 * @return array
+	 */
+	protected function transformJsonValue(array $default = []): array {
+		return array_values(parent::transformJsonValue($default));
+	}
+	
+	/**
 	 * @param $functionName
 	 *
 	 * @return string
@@ -165,7 +178,7 @@ class SelectOneWithOther extends SelectOne {
 		ob_start(); ?>
 		
 		<script type="text/javascript">
-			function <?= $functionName ?>(select) {
+			function<?= $functionName ?>(select) {
 				var other = select.nextElementSibling;
 				var value = select.options[select.selectedIndex].value;
 				other.classList.toggle("other-hidden", value !== "?");

@@ -283,7 +283,22 @@ abstract class AbstractField implements FieldInterface {
 	 * @return bool
 	 */
 	public function isEmpty(): bool {
-		return empty($this->value);
+		
+		// we can't simply use empty() on our value because sometimes
+		// our values are JSON strings which could represent empty arrays.
+		// we could call our transformJsonValue() method, but that one
+		// calls this one and we end up in an infinite loop.  so, we're
+		// going to try and decode JSON to create a string of array
+		// values.  if we decode to an array and with no errors, then we
+		// use that array; otherwise we assume that our value wasn't JSON
+		// to begin with.
+		
+		$temp = json_decode($this->value, true);
+		$temp = json_last_error() === JSON_ERROR_NONE && is_array($temp)
+			? join("", $temp)
+			: $this->value;
+		
+		return empty($temp);
 	}
 	
 	/**
