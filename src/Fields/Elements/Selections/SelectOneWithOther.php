@@ -2,8 +2,6 @@
 
 namespace Dashifen\Form\Fields\Elements\Selections;
 
-use Dashifen\Form\Fields\FieldException;
-
 /**
  * Class SelectOneWithOther
  *
@@ -30,50 +28,6 @@ class SelectOneWithOther extends SelectOne {
 	protected $fieldElementCount = 2;
 	
 	/**
-	 * @return string
-	 */
-	public function getOther(): string {
-		return $this->other;
-	}
-	
-	/**
-	 * @param string $other
-	 */
-	public function setOther(string $other) {
-		$this->other = $other;
-	}
-	
-	/**
-	 * @param string $suffix
-	 *
-	 * @return string
-	 */
-	public function getId(string $suffix = "known"): string {
-		return sprintf("%s-%s", $this->id, $suffix);
-	}
-	
-	/**
-	 * @param string $suffix
-	 *
-	 * @return string
-	 */
-	public function getName(string $suffix = "known"): string {
-		return sprintf("%s-%s", $this->name, $suffix);
-	}
-	
-	/**
-	 * @return string
-	 */
-	protected function getDefaultDisplay(): string {
-		
-		// our parent will determine the default display based on the number
-		// of options to display.  here, though, we just want a <select>
-		// element to facilitate easy identification of when things change.
-		
-		return "select";
-	}
-	
-	/**
 	 * @return array
 	 */
 	public function getClasses(): array {
@@ -97,19 +51,6 @@ class SelectOneWithOther extends SelectOne {
 		if (!in_array("with-other", $this->classes)) {
 			$this->classes[] = "with-other";
 		}
-	}
-	
-	/**
-	 * @return string
-	 */
-	public function getClassesAsString(): string {
-		
-		// like when getting an array of our classes, we want to be sure
-		// that we have our with-other class, but then the SelectOne's
-		// behavior is good enough.
-		
-		$this->addWithOtherClass();
-		return parent::getClassesAsString();
 	}
 	
 	/**
@@ -163,6 +104,51 @@ class SelectOneWithOther extends SelectOne {
 	}
 	
 	/**
+	 * @param string $suffix
+	 *
+	 * @return string
+	 */
+	public function getId(string $suffix = "known"): string {
+		return sprintf("%s-%s", $this->id, $suffix);
+	}
+	
+	/**
+	 * @param string $suffix
+	 *
+	 * @return string
+	 */
+	public function getName(string $suffix = "known"): string {
+		return sprintf("%s-%s", $this->name, $suffix);
+	}
+	
+	/**
+	 * @return string
+	 */
+	public function getClassesAsString(): string {
+		
+		// like when getting an array of our classes, we want to be sure
+		// that we have our with-other class, but then the SelectOne's
+		// behavior is good enough.
+		
+		$this->addWithOtherClass();
+		return parent::getClassesAsString();
+	}
+	
+	/**
+	 * @return string
+	 */
+	public function getOther(): string {
+		return $this->other;
+	}
+	
+	/**
+	 * @param string $other
+	 */
+	public function setOther(string $other) {
+		$this->other = $other;
+	}
+	
+	/**
 	 * @param $functionName
 	 *
 	 * @return string
@@ -178,7 +164,7 @@ class SelectOneWithOther extends SelectOne {
 		ob_start(); ?>
 		
 		<script type="text/javascript">
-			function<?= $functionName ?>(select) {
+			function <?= $functionName ?>(select) {
 				var other = select.nextElementSibling;
 				var value = select.options[select.selectedIndex].value;
 				other.classList.toggle("other-hidden", value !== "?");
@@ -186,5 +172,17 @@ class SelectOneWithOther extends SelectOne {
 		</script>
 		
 		<?php return ob_get_clean();
+	}
+	
+	/**
+	 * @return string
+	 */
+	protected function getDefaultDisplay(): string {
+		
+		// our parent will determine the default display based on the number
+		// of options to display.  here, though, we just want a <select>
+		// element to facilitate easy identification of when things change.
+		
+		return "select";
 	}
 }
