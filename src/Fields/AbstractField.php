@@ -645,7 +645,7 @@ abstract class AbstractField implements FieldInterface {
 	 */
 	protected function transformJsonValue(array $default = []): array {
 		if ($this->isEmpty()) {
-			return $default;
+			return array_values($default);
 		}
 		
 		// if we've already transformed our value, then it'll be in this
