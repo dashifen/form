@@ -666,11 +666,12 @@ abstract class AbstractField implements FieldInterface {
 			throw new FieldException($message, FieldException::INVALID_VALUE);
 		}
 		
-		// here's where we save our transformation for later.  we'll assign
-		// our $values to our property and then return those values by side
-		// effect as well.
+		// here's where we save our transformation for later.  we only care
+		// about the values internally, so we pass what we have through
+		// array_values first.  then, we return them to the calling scope.
 		
-		return ($this->transformedJsonValue = $values);
+		$this->transformedJsonValue = array_values($values);
+		return $this->transformedJsonValue;
 	}
 	
 	/**
