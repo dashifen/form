@@ -2,8 +2,6 @@
 
 namespace Dashifen\Form\Builder;
 
-use Dashifen\Form\Fields\FieldInterface;
-
 /**
  * Class FormBuilder
  *
@@ -28,27 +26,54 @@ class FormBuilder implements FormBuilderInterface {
 	/**
 	 * FormBuilder constructor.
 	 *
-	 * @param array $description
+	 * @param array  $description
+	 * @param string $object
 	 */
-	public function __construct(array $description = []) {
-		$this->form = [
-			"id"           => $description["id"] ?? uniqid("form-"),
-			"action"       => $description["action"] ?? "",
-			"method"       => $description["method"] ?? "post",
-			"enctype"      => $description["enctype"] ?? "application/x-www-form-urlencoded",
-			"instructions" => $description["instructions"] ?? "",
-			"classes"      => $description["classes"] ?? "[]",
-			"fieldsets"    => [],
-		];
+	public function __construct(array $description = [], string $object = 'Dashifen\Form\Form') {
+		$this->form = $this->buildObjectArray($object, $description);
+		
+		// for our form, the one thing we don't expect to be told about at
+		// this time is our fieldsets.   if we are, that's fine, but if we're
+		// not, then we'll add space for them now.
+		
+		if (!isset($this->form["fieldsets"])) {
+			$this->form["fieldsets"] = [];
+		}
 	}
 	
 	/**
-	 * @param array $description
+	 * @param string $object
+	 * @param array  $description
+	 *
+	 * @return array
+	 */
+	protected function buildObjectArray(string $object, array $description): array {
+		
+		// throughout this function, we're giving a description of an object
+		// as an array.  here, we use the name of the object being build as
+		// well as that description to be sure that we build our form
+		// correctly.  with the name of the object, we can use the
+		// property_exists() function to copy only that which we need and
+		// nothing else.
+		
+		$objectArray = [];
+		foreach ($description as $index => $value) {
+			if (property_exists($object, $index)) {
+				$objectArray[$index] = $value;
+			}
+		}
+		
+		return $objectArray;
+	}
+	
+	/**
+	 * @param array  $description
+	 * @param string $object
 	 *
 	 * @return void
 	 * @throws FormBuilderException
 	 */
-	public function openFieldset(array $description): void {
+	public function openFieldset(array $description = [], string $object = 'Dashifen\Form\Fieldset\Fieldset'): void {
 		
 		// we're going to impose a requirement here on our fieldsets:  that
 		// they have legends.  technically, the Fieldset::parse() method will
@@ -68,23 +93,26 @@ class FormBuilder implements FormBuilderInterface {
 		// so that when we increment it here, our first fieldset will be
 		// at 0 as we would expect.
 		
-		$this->currentFieldset++;
-		$this->form["fieldsets"][] = [
-			"legend"       => $description["legend"],
-			"id"           => $description["id"] ?? uniqid("fieldset-"),
-			"classes"      => $description["classes"] ?? "",
-			"instructions" => $description["instructions"] ?? "",
-			"fields"       => [],
-		];
+		$this->form["fieldsets"][++$this->currentFieldset] = $this->buildObjectArray($object, $description);
+		
+		// like a form's fieldsets, the fieldset's fields are not expected
+		// to be sent here as a part of the $description.  if they are, that's
+		// fine, but if they're not, we'll add space for them now.
+		
+		if (!isset($this->form["fieldsets"][$this->currentFieldset]["fields"])) {
+			$this->form["fieldsets"][$this->currentFieldset]["fields"] = [];
+		}
 	}
 	
 	/**
-	 * @param array $description
+	 * @param array  $description
+	 * @param string $object
+	 *
 	 *
 	 * @return void
 	 * @throws FormBuilderException
 	 */
-	public function addField(array $description): void {
+	public function addField(array $description = [], string $object = 'Dashifen\Form\Fields\AbstractField'): void {
 		
 		// fields work just like the other ones above, and like Fieldsets,
 		// there's a requirement to check for.
@@ -94,36 +122,7 @@ class FormBuilder implements FormBuilderInterface {
 				FormBuilderException::MISSING_FIELD_TYPE);
 		}
 		
-		// and, now we'll handle the normal field setup process like we
-		// did for the Form and Fieldset above.  the only hitch is that we
-		// want to respect the relationship between the ID, name, and label
-		// as defined in the AbstractField::parse() method.  thus, we don't
-		// add the latter two unless they exist which means we can't use
-		// the super fancy null coalescing operator on them.  so, we leave
-		// them to the end.
-		
-		$field = [
-			"type"                 => $description["type"],
-			"id"                   => $description["id"] ?? uniqid("field-"),
-			"options"              => $description["options"] ?? [],
-			"classes"              => $description["classes"] ?? [],
-			"required"             => $description["required"] ?? FieldInterface::OPTIONAL,
-			"instructions"         => $description["instructions"] ?? "",
-			"errorMessage"         => $description["errorMessage"] ?? "",
-			"additionalAttributes" => $description["additionalAttributes"] ?? [],
-			"error"                => (bool)($description["error"] ?? false),
-			"value"                => $description["value"] ?? "",
-		];
-		
-		if (isset($description["name"])) {
-			$field["name"] = $description["name"];
-		}
-		
-		if (isset($description["label"])) {
-			$field["label"] = $description["label"];
-		}
-		
-		$this->form["fieldsets"][$this->currentFieldset]["fields"][] = $field;
+		$this->form["fieldsets"][$this->currentFieldset]["fields"][] = $this->buildObjectArray($object, $description);
 	}
 	
 	/**
