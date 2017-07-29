@@ -102,6 +102,7 @@ class SelectOne extends AbstractField {
 	 */
 	protected function getOptionsAsString(): string {
 		
+		
 		// first we want to validate our options, which we also need to do
 		// when building a radio button set.  so, we've moved that validation
 		// to the validateOptions() method.  that method throws exceptions

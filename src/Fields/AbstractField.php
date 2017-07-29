@@ -298,7 +298,12 @@ abstract class AbstractField implements FieldInterface {
 			? join("", $temp)
 			: $this->value;
 		
-		return empty($temp);
+		// we can't use empty() here, even though it would seem like we want
+		// to, because empty(0) would be true, but 0 might be a legitimately
+		// non-empty result.  so, we'll use strlen() and if there's no length
+		// to our $temp variable, then we're well and truly empty.
+		
+		return strlen($temp) === 0;
 	}
 	
 	/**
