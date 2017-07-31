@@ -211,6 +211,19 @@ class Validator implements ValidatorInterface {
 	 *
 	 * @return bool
 	 */
+	protected function nonZero($value): bool {
+		
+		// sometimes it's handy to test that something is not zero, just
+		// like we want to test above that it is.
+		
+		return $this->number($value) && !$this->zero($value);
+	}
+	
+	/**
+	 * @param $value
+	 *
+	 * @return bool
+	 */
 	protected function string($value): bool {
 		return is_string($value);
 	}
