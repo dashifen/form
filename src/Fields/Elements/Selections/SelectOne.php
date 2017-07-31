@@ -224,6 +224,7 @@ class SelectOne extends AbstractField {
 			<li class="%s">
 				<fieldset id="%s">
 				<legend>%s</legend>
+				%s
 				<ol>
 					%s
 				</ol>
@@ -235,6 +236,7 @@ class SelectOne extends AbstractField {
 			$this->getLiClass([$this->extraType]),
 			$this->getId(),
 			$this->getLabel(),
+			$this->getVerboseInstructions(),
 			$radios
 		);
 	}
