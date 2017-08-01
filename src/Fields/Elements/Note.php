@@ -25,7 +25,7 @@ class Note extends AbstractField {
 			</li>
 FIELD;
 		
-		$field = sprintf($format, $this->getLiClass(),
+		$field = sprintf($format, $this->getLiClass(), $this->getLabel(),
 			$this->getVerboseInstructions());
 		
 		return parent::display($field, $display);
