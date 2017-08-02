@@ -30,7 +30,7 @@ class FormBuilder implements FormBuilderInterface {
 	 * @param string $object
 	 */
 	public function __construct(array $description = [], string $object = 'Dashifen\Form\Form') {
-		$this->form = $this->buildObjectArray($object, $description);
+		$this->openForm($description, $object);
 		
 		// for our form, the one thing we don't expect to be told about at
 		// this time is our fieldsets.   if we are, that's fine, but if we're
@@ -64,6 +64,14 @@ class FormBuilder implements FormBuilderInterface {
 		}
 		
 		return $objectArray;
+	}
+	
+	/**
+	 * @param array  $description
+	 * @param string $object
+	 */
+	public function openForm(array $description = [], string $object = 'Dashifen\Form\Form') {
+		$this->form = $this->buildObjectArray($description, $object);
 	}
 	
 	/**
