@@ -1,6 +1,7 @@
 <?php
 
 namespace Dashifen\Form\Builder;
+use Dashifen\Form\FormInterface;
 
 /**
  * Class FormBuilder
@@ -142,8 +143,27 @@ class FormBuilder implements FormBuilderInterface {
 	}
 	
 	/**
+	 * @param string $object
+	 *
+	 * @return FormInterface
+	 */
+	public function getForm(string $object = 'Dashifen\Form\Form'): FormInterface {
+		/** @var FormInterface $object */
+		
+		return $object::parse($this->getFormJson());
+	}
+	
+	/**
+	 * @return string
+	 */
+	public function getFormJson():string {
+		return json_encode($this->form);
+	}
+	
+	/**
 	 * @return string
 	 * @throws FormBuilderException
+	 * @deprecated 1.8.0 use getFormJson() instead
 	 */
 	public function build(): string {
 		
@@ -151,6 +171,6 @@ class FormBuilder implements FormBuilderInterface {
 		// is ready-to-go as our JSON string.  so, we can just encode
 		// it and return!
 		
-		return json_encode($this->form);
+		return $this->getFormJson();
 	}
 }

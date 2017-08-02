@@ -2,6 +2,8 @@
 
 namespace Dashifen\Form\Builder;
 
+use Dashifen\Form\FormInterface;
+
 interface FormBuilderInterface {
 	/**
 	 * @param array  $description
@@ -28,7 +30,20 @@ interface FormBuilderInterface {
 	public function addField(array $description = [], string $object = 'Dashifen\Form\Fields\AbstractField'): void;
 	
 	/**
+	 * @param string $object
+	 *
+	 * @return FormInterface
+	 */
+	public function getForm(string $object = 'Dashifen\Form\Form'): FormInterface;
+	
+	/**
 	 * @return string
+	 */
+	public function getFormJson(): string;
+	
+	/**
+	 * @return string
+	 * @deprecated 1.8.0 use getFormJson() instead.
 	 */
 	public function build(): string;
 }
