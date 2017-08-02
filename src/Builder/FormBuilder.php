@@ -30,7 +30,23 @@ class FormBuilder implements FormBuilderInterface {
 	 * @param string $object
 	 */
 	public function __construct(array $description = [], string $object = 'Dashifen\Form\Form') {
-		$this->openForm($description, $object);
+		if (sizeof($description) > 0) {
+			
+			// we don't technically need to do anything when constructing our
+			// builder, but for our convenience, we'll allow a form's
+			// description and object to be passed here.  if we get a
+			// description, we'll pass it over to openForm.
+			
+			$this->openForm($description, $object);
+		}
+	}
+	
+	/**
+	 * @param array  $description
+	 * @param string $object
+	 */
+	public function openForm(array $description = [], string $object = 'Dashifen\Form\Form') {
+		$this->form = $this->buildObjectArray($object, $description);
 		
 		// for our form, the one thing we don't expect to be told about at
 		// this time is our fieldsets.   if we are, that's fine, but if we're
@@ -64,14 +80,6 @@ class FormBuilder implements FormBuilderInterface {
 		}
 		
 		return $objectArray;
-	}
-	
-	/**
-	 * @param array  $description
-	 * @param string $object
-	 */
-	public function openForm(array $description = [], string $object = 'Dashifen\Form\Form') {
-		$this->form = $this->buildObjectArray($description, $object);
 	}
 	
 	/**
