@@ -43,7 +43,7 @@ interface FormBuilderInterface {
 	
 	/**
 	 * @return string
-	 * @deprecated 1.8.0 use getFormJson() instead.
+	 * @deprecated 1.9.0 use getFormJson() instead.
 	 */
 	public function build(): string;
 }
