@@ -1,6 +1,6 @@
 <?php
 
-namespace Dashifen\Form\Fields\Elements\Hidden;
+namespace Dashifen\Form\Fields\Elements;
 
 use Dashifen\Form\Fields\AbstractField;
 
