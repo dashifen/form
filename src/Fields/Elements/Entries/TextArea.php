@@ -39,7 +39,8 @@ class TextArea extends AbstractField {
 			$this->getName(),
 			$this->getClassesAsString(),
 			$this->getRequired() ? "true" : "false",
-			$this->getRequired() ? " required" : ""
+			$this->getRequired() ? " required" : "",
+			$this->getValue()
 		);
 		
 		return parent::display($textarea, $display);
