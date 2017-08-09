@@ -17,8 +17,8 @@ class Hidden extends AbstractField {
 		// doesn't need any labels or instructions, so our format is pretty
 		// simple.
 		
-		$format = '<input type="hidden" id="%s" name="%s" value="%s">';
-		$field = sprintf($format, $this->getId(), $this->getName(), $this->getValue());
+		$format = '<input type="hidden" id="%s" name="%s" class="%s" value="%s">';
+		$field = sprintf($format, $this->getId(), $this->getName(), $this->getClassesAsString(), $this->getValue());
 		return parent::display($field, $display);
 	}
 }
