@@ -666,7 +666,7 @@ abstract class AbstractField implements FieldInterface {
 		// throw our exception and hope it's caught elsewhere.
 		
 		$values = json_decode($this->value, true);
-		if (json_last_error() !== JSON_ERROR_NONE) {
+		if (json_last_error() !== JSON_ERROR_NONE && !is_numeric($this->value)) {
 			$message = sprintf("%s requires JSON value", $this->getType());
 			throw new FieldException($message, FieldException::INVALID_VALUE);
 		}
