@@ -241,20 +241,20 @@ class Validator implements ValidatorInterface {
 	/**
 	 * @param $value
 	 *
-	 * @return mixed
+	 * @return bool
 	 */
-	protected function email($value) {
-		return filter_var($value, FILTER_VALIDATE_EMAIL);
+	protected function email($value): bool {
+		return (bool)filter_var($value, FILTER_VALIDATE_EMAIL);
 	}
 	
 	/**
 	 * @param     $value
 	 * @param int $flags
 	 *
-	 * @return mixed
+	 * @return bool
 	 */
-	protected function url($value, int $flags = FILTER_FLAG_SCHEME_REQUIRED & FILTER_FLAG_HOST_REQUIRED) {
-		return filter_var($value, FILTER_VALIDATE_URL, $flags);
+	protected function url($value, int $flags = FILTER_FLAG_SCHEME_REQUIRED & FILTER_FLAG_HOST_REQUIRED): bool {
+		return (bool)filter_var($value, FILTER_VALIDATE_URL, $flags);
 	}
 	
 	/**
