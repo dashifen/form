@@ -147,10 +147,21 @@ class FormBuilder implements FormBuilderInterface {
 	 *
 	 * @return FormInterface
 	 */
-	public function getForm(string $object = 'Dashifen\Form\Form'): FormInterface {
+	public function buildForm(string $object = 'Dashifen\Form\Form'): FormInterface {
 		/** @var FormInterface $object */
 		
 		return $object::parse($this->getFormJson());
+	}
+	
+	/**
+	 * @param string $object
+	 *
+	 * @return FormInterface
+	 * @deprecated
+	 */
+	public function getForm(string $object = 'Dashifen\Form\Form'): FormInterface {
+		trigger_error("FormBuilder::getForm is deprecated since version 1.9.6", E_DEPRECATED);
+		return $this->buildForm();
 	}
 	
 	/**

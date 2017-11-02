@@ -1,7 +1,6 @@
 <?php
 
 namespace Dashifen\Form\Fields\Elements\Selections;
-use Dashifen\Form\Fields\FieldException;
 
 /**
  * Class SelectMany
@@ -38,10 +37,12 @@ class SelectMany extends SelectOne {
 		
 		// the SelectOne field returns its fieldset of input elements
 		// as radio buttons.  changing those to checkboxes is fairly
-		// easy:  we change the type and we need to be sure that the
-		// name field posts an array.  the first one is easy:
+		// easy:  we change some instances of the word "radio" to
+		// "checkbox" and we need to rename each input's name so that
+		// we submit an array of checked boxes.
 		
 		$checkboxes = str_replace('type="radio"', 'type="checkbox"', $radios);
+		$checkboxes = str_replace('class="radio', 'class="checkbox', $checkboxes);
 		
 		// for the second one we need to make a regular expression to
 		// do what we need to do.  we know the name is in the form of

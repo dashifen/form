@@ -34,6 +34,14 @@ interface FormBuilderInterface {
 	 *
 	 * @return FormInterface
 	 */
+	public function buildForm(string $object = 'Dashifen\Form\Form'): FormInterface;
+	
+	/**
+	 * @param string $object
+	 *
+	 * @return FormInterface
+	 * @deprecated
+	 */
 	public function getForm(string $object = 'Dashifen\Form\Form'): FormInterface;
 	
 	/**
