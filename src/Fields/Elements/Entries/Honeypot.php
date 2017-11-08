@@ -53,7 +53,9 @@ INSTRUCTIONS;
 		
 		// the only thing we want to do here is remove the honeypot field
 		// from the tab order for the form.  we use a quick string replace
-		// to make that happen.
+		// to make that happen.  this is a similar operation to how we
+		// do other additional attributes, but this time we want to add it
+		// regardless of what anyone else tells us to do.
 		
 		return str_replace("<input", '<input tabindex="-1"', parent::getField($display));
 	}

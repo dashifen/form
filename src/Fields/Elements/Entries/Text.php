@@ -42,7 +42,7 @@ class Text extends AbstractField {
 			$this->getRequired() ? " required" : ""
 		);
 		
+		$field = $this->addAdditionalAttributes($field, ["maxlength"]);
 		return parent::display($field, $display);
 	}
-	
 }

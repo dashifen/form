@@ -535,6 +535,61 @@ abstract class AbstractField implements FieldInterface {
 	}
 	
 	/**
+	 * @param string $field
+	 * @param array  $allowedAttributes
+	 *
+	 * @return string
+	 */
+	protected function addAdditionalAttributes(string $field, array $allowedAttributes): string {
+		
+		// not all entries will have additional attributes, but if they do,
+		// this method adds them.  it does so by using a string replacement
+		// switching out the string "<input" for the same thing with the
+		// new attributes, for example.
+		
+		$attributes = $this->getAttributesAsString($allowedAttributes);
+		if (!empty($attributes)) {
+		    
+		    // now that we know we have attributes to add, we want to cram
+            // them into our $field.  first, we identify the HTML element
+            // that is our field.  then, using that element's name, we can
+            // add them to our string with str_replace().
+		    
+		    $replace = "<" . $this->identifyHtmlElement($field);
+			$field = str_replace($replace, $replace ." " . $attributes, $field);
+		}
+		
+		return $field;
+	}
+	
+	/**
+	 * @param string $field
+	 *
+	 * @return string
+     * @throws FieldException
+	 */
+	protected function identifyHtmlElement(string $field): string {
+     
+	    // the $field we're sent is an HTML element like an input, select,
+        // or textarea.  but, since we can't be sure which one it is, this
+        // function identifies it by grabbing the name of it after it's
+        // opening < character.
+        
+        $isMatch = preg_match("/^<([^ ]+)/", $field, $matches);
+        if (!$isMatch) {
+            throw new FieldException("Unable to identify element.",
+                FieldException::UNKNOWN_FIELD);
+        }
+	    
+        // assuming we were able to find a match, we return the first
+        // (and only) parenthetical match which is the word which follows
+        // the opening <.  so for <input type="text">, we'd return
+        // "input."
+        
+        return $matches[1];
+	}
+	
+	/**
 	 * @param array $potentials
 	 *
 	 * @return string
