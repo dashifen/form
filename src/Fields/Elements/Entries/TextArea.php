@@ -43,7 +43,7 @@ class TextArea extends AbstractField {
 			$this->getValue()
 		);
 		
-		$textarea = $this->addAdditionalAttributes($textarea, ["maxlength"]);
+		$textarea = $this->addAdditionalAttributes($textarea, "textarea", ["maxlength"]);
 		return parent::display($textarea, $display);
 	}
 	

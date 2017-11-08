@@ -21,7 +21,7 @@ class Number extends Text {
 		// need to cram that into our $field.  it'll already be of type
 		// number because of the name of the class.
 		
-		$field = $this->addAdditionalAttributes($field, ["step", "min", "max"]);
+		$field = $this->addAdditionalAttributes($field, "input", ["step", "min", "max"]);
 		return parent::display($field, $display);
 	}
 }
