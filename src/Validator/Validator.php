@@ -220,6 +220,15 @@ class Validator implements ValidatorInterface {
 	}
 
 	/**
+	 * @param $value
+	 *
+	 * @return bool
+	 */
+	protected function string($value): bool {
+		return is_string($value);
+	}
+
+	/**
 	 * @param     $value
 	 * @param int $maxLength
 	 *
@@ -234,8 +243,23 @@ class Validator implements ValidatorInterface {
 	 *
 	 * @return bool
 	 */
-	protected function string($value): bool {
-		return is_string($value);
+	protected function empty($value): bool {
+		$valid = false;
+
+		if ($this->string($value)) {
+			$valid = strlen(preg_replace("/\s+/", "", $value)) === 0;
+		}
+
+		return $valid;
+	}
+
+	/**
+	 * @param $value
+	 *
+	 * @return bool
+	 */
+	protected function notEmpty($value): bool {
+		return $this->string($value) && !$this->empty($value);
 	}
 
 	/**
