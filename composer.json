@@ -17,6 +17,7 @@
 		}
 	},
 	"require": {
+		"ralouphie/mimey": "^1.0",
 		"dashifen/exception": "^1",
 		"php": "^7.1"
 	},
