@@ -2,8 +2,11 @@
 
 namespace Dashifen\Form\Fields;
 
+use Dashifen\Form\StaticSanitizerTrait;
+
 abstract class AbstractField implements FieldInterface {
-	
+	use StaticSanitizerTrait;
+
 	/**
 	 * @var array
 	 *
@@ -59,7 +62,7 @@ abstract class AbstractField implements FieldInterface {
 		}
 		
 		$this->label = empty($label)
-			? ucwords(str_replace("-", " ", $name))
+			? AbstractField::unsanitizeString($name)
 			: $label;
 		
 		$this->name = $name;
@@ -97,7 +100,7 @@ abstract class AbstractField implements FieldInterface {
 		
 		$id    = $fieldData->id    ?? uniqid("field-");
 		$name  = $fieldData->name  ?? $id;
-		$label = $fieldData->label ?? ucwords(str_replace("-", " ", $name));
+		$label = $fieldData->label ?? AbstractField::unsanitizeString($name);
 		$type  = $fieldData->type  ?? "Text";
 		
 		// we use a variable constructor because this object is abstract.
