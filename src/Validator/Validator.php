@@ -244,13 +244,9 @@ class Validator implements ValidatorInterface {
 	 * @return bool
 	 */
 	protected function empty($value): bool {
-		$valid = false;
-
-		if ($this->string($value)) {
-			$valid = strlen(preg_replace("/\s+/", "", $value)) === 0;
-		}
-
-		return $valid;
+		return $this->array($value)
+			? $this->emptyArray($value)
+			: $this->emptyString($value);
 	}
 
 	/**
@@ -259,6 +255,53 @@ class Validator implements ValidatorInterface {
 	 * @return bool
 	 */
 	protected function notEmpty($value): bool {
+		return $this->array($value)
+			? $this->notEmptyArray($value)
+			: $this->notEmptyString($value);
+	}
+
+	/**
+	 * @param $value
+	 *
+	 * @return bool
+	 */
+	protected function array($value): bool {
+		return is_array($value);
+	}
+
+	/**
+	 * @param $value
+	 *
+	 * @return bool
+	 */
+	protected function emptyArray($value): bool {
+		return $this->array($value) && sizeof($value) === 0;
+	}
+
+	/**
+	 * @param $value
+	 *
+	 * @return bool
+	 */
+	protected function notEmptyArray($value): bool {
+		return $this->array($value) && !$this->emptyArray($value);
+	}
+
+	/**
+	 * @param $value
+	 *
+	 * @return bool
+	 */
+	protected function emptyString($value): bool {
+		return $this->string($value) && strlen(preg_replace("/\s+/", "", $value)) === 0;
+	}
+
+	/**
+	 * @param $value
+	 *
+	 * @return bool
+	 */
+	protected function notEmptyString($value): bool {
 		return $this->string($value) && !$this->empty($value);
 	}
 
