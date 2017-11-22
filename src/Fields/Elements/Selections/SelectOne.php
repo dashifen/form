@@ -79,7 +79,7 @@ class SelectOne extends AbstractField {
 			<li class="%s">
 				%s
 				%s
-				<select id="%s" name="%s" class="%s">
+				<select id="%s" name="%s" class="%s" aria-required="%s"%s>
 					%s
 				</select>
 			</li>
@@ -92,6 +92,8 @@ class SelectOne extends AbstractField {
 			$this->getId(),
 			$this->getName(),
 			$this->getClassesAsString(),
+			$this->required ? "true" : "false",
+			$this->required ? " required" : "",
 			$options
 		);
 	}
