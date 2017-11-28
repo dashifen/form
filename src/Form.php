@@ -13,6 +13,17 @@ use Dashifen\Form\Fields\AbstractField;
  * @package Dashifen\Form
  */
 class Form implements FormInterface {
+	public const ENCTYPES = [
+		"application/x-www-form-urlencoded",
+		"multipart/form-data",
+		"text/plain",
+	];
+
+	public const ENCTYPE_DEFAULT = self::ENCTYPES[0];
+	public const ENCTYPE_URLENCODED = self::ENCTYPES[0];
+	public const ENCTYPE_MULTIPART = self::ENCTYPES[1];
+	public const ENCTYPE_TEXT = self::ENCTYPES[2];
+
 	/**
 	 * @var string
 	 */
@@ -22,17 +33,17 @@ class Form implements FormInterface {
 	 * @var string
 	 */
 	protected $action;
-	
+
+	/**
+	 * @var string
+	 */
+	protected $enctype = self::ENCTYPE_DEFAULT;
+
 	/**
 	 * @var string
 	 */
 	protected $method = "post";
-	
-	/**
-	 * @var string
-	 */
-	protected $enctype = "application/x-www-form-urlencoded";
-	
+
 	/**
 	 * @var array
 	 */
@@ -177,17 +188,12 @@ class Form implements FormInterface {
 	 * @param string $enctype
 	 */
 	public function setEnctype(string $enctype): void {
-		$enctypes = [
-			"application/x-www-form-urlencoded",
-			"multipart/form-data",
-			"text/plain",
-		];
-		
+
 		// the above are the valid enctypes for an HTML form.  if we
 		// don't have one of those, we'll just use the default option.
 		
-		if (!in_array($enctype, $enctypes)) {
-			$enctype = "application/x-www-form-urlencoded";
+		if (!in_array($enctype, self::ENCTYPES)) {
+			$enctype = self::ENCTYPE_DEFAULT;
 		}
 		
 		$this->enctype = $enctype;
@@ -362,6 +368,8 @@ class Form implements FormInterface {
 				return $fieldset->getField($id);
 			}
 		}
+
+		return null;
 	}
 	
 	/**
