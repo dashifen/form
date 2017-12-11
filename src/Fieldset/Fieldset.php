@@ -3,6 +3,7 @@
 namespace Dashifen\Form\Fieldset;
 
 use Dashifen\Form\Fields\AbstractField;
+use Dashifen\Form\Fields\FieldException;
 use Dashifen\Form\Fields\FieldInterface;
 use Dashifen\Form\StaticSanitizerTrait;
 
@@ -103,7 +104,13 @@ class Fieldset implements FieldsetInterface {
 				$field = json_encode($field);
 			}
 
-			$fieldset->addField(AbstractField::parse($field));
+			try {
+				$fieldset->addField(AbstractField::parse($field));
+			} catch (FieldException $exception) {
+				throw new FieldsetException("Must add a field",
+					FieldsetException::NOT_A_FIELD,
+					$exception);
+			}
 		}
 
 		return $fieldset;
@@ -220,6 +227,27 @@ class Fieldset implements FieldsetInterface {
 		// is in the keys of our array:
 
 		return array_key_exists($fieldId, $this->fields);
+	}
+
+	/**
+	 * @param string $type
+	 *
+	 * @return bool
+	 */
+	public function hasFieldOfType(string $type): bool {
+
+		// this is a more expensive search than the prior one.  we can
+		// see if we have a field by looking for its ID in our $fields
+		// property.  but, here we need to interrogate those field objects
+		// a bit.
+
+		foreach ($this->fields as $field) {
+			if ($field->getType() === $type) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**

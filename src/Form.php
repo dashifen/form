@@ -2,8 +2,10 @@
 
 namespace Dashifen\Form;
 
+use Dashifen\Form\Fields\FieldException;
 use Dashifen\Form\Fields\FieldInterface;
 use Dashifen\Form\Fieldset\Fieldset;
+use Dashifen\Form\Fieldset\FieldsetException;
 use Dashifen\Form\Fieldset\FieldsetInterface;
 use Dashifen\Form\Fields\AbstractField;
 
@@ -77,11 +79,12 @@ class Form implements FormInterface {
 	public function __construct(string $id) {
 		$this->id = $id;
 	}
-	
+
 	/**
 	 * @param string $jsonForm
 	 *
 	 * @return FormInterface
+	 * @throws FormException
 	 */
 	public static function parse(string $jsonForm): FormInterface {
 		$formData = json_decode($jsonForm);
@@ -123,8 +126,15 @@ class Form implements FormInterface {
 			if (is_object($fieldset)) {
 				$fieldset = json_encode($fieldset);
 			}
-			
-			$form->addFieldset(Fieldset::parse($fieldset));
+
+			try {
+				$form->addFieldset(Fieldset::parse($fieldset));
+			} catch (FieldsetException $exception) {
+				throw new FormException("Must add a fieldset.",
+					FormException::NOT_A_FIELDSET,
+					$exception);
+			}
+
 		}
 		
 		// finally, if buttons are specified as a part of our form
@@ -134,7 +144,13 @@ class Form implements FormInterface {
 		
 		$buttons = $formData->buttons ?? [];
 		foreach ($buttons as $button) {
-			$form->addButton(AbstractField::parse($button));
+			try {
+				$form->addButton(AbstractField::parse($button));
+			} catch (FieldException $exception) {
+				throw new FormException("Must add a button",
+					FormException::NOT_A_BUTTON,
+					$exception);
+			}
 		}
 		
 		return $form;
@@ -407,7 +423,7 @@ class Form implements FormInterface {
 		// object, but we want to be sure that it's a button.  we can
 		// do that by checking its type.
 		
-		if ($button->getType() === "button") {
+		if (stripos($button->getType(), "button") !== false) {
 			$this->buttons[] = $button;
 			return;
 		}
@@ -415,11 +431,12 @@ class Form implements FormInterface {
 		throw new FormException("Cannot add a non-button with button adder.",
 			FormException::NOT_A_BUTTON);
 	}
-	
+
 	/**
 	 * @param bool $display
 	 *
 	 * @return string
+	 * @throws FormException
 	 */
 	public function getForm(bool $display = true): string {
 		
@@ -436,6 +453,16 @@ class Form implements FormInterface {
 		
 		if ($this->method === "post") {
 			$attributes[] = "enctype";
+
+			// if we're posting data, we might be posting a file.  in
+			// such a case, we must have the multiple/form-data enctype
+			// or the file doesn't get sent.  so, if we don't have that
+			// enctype and we do have a file input, then we'll set the
+			// appropriate enctype here.
+
+			if ($this->enctype !== self::ENCTYPE_MULTIPART && $this->hasFieldOfType("file")) {
+				$this->setEnctype(self::ENCTYPE_MULTIPART);
+			}
 		}
 		
 		// now, we'll build our <form> using the $attributes array we
@@ -449,8 +476,10 @@ class Form implements FormInterface {
 			$attributeValue = $attribute === "class"
 				? join(" ", $this->classes)
 				: $this->{$attribute};
-			
-			$form .= " $attribute=$attributeValue";
+
+			if (strlen($attributeValue) !== 0) {
+				$form .= " $attribute=$attributeValue";
+			}
 		}
 		
 		$form .= ">";
@@ -517,9 +546,10 @@ class Form implements FormInterface {
 		
 		return $content;
 	}
-	
+
 	/**
 	 * @return string
+	 * @throws FormException
 	 */
 	protected function getButtons() {
 		$buttons = "";
@@ -531,15 +561,53 @@ class Form implements FormInterface {
 		}
 		
 		if (empty($buttons)) {
-			
+
 			// if we never received any buttons to display, then we want to
 			// create a submit button and use it now.
-			
-			$submit = json_encode(["type" => "SubmitButton", "label" => "Submit"]);
-			$submit = AbstractField::parse($submit);
-			$buttons = $submit->getField();
+
+			try {
+				$submit = json_encode(["type" => "SubmitButton", "label" => "Submit"]);
+				$submit = AbstractField::parse($submit);
+				$buttons = $submit->getField();
+			} catch (FieldException $exception) {
+				throw new FormException("Must add a button.",
+					FormException::NOT_A_BUTTON,
+					$exception);
+			}
 		}
 		
 		return $buttons;
+	}
+
+	public function hasField(string $id): bool {
+
+		// a form as a field if one of its fieldsets has it.  we'll loop over
+		// our fieldsets and check to see if we can find a field with this $id
+		// in any of them.  if we do, then we'll return true.
+
+		foreach ($this->fieldsets as $fieldset) {
+			if ($fieldset->hasField($id)) {
+				return true;
+			}
+		}
+
+		// if we didn't find the field, then we end up here and return false.
+
+		return false;
+	}
+
+	public function hasFieldOfType(string $type): bool {
+
+		// like the prior method, we loop over our fieldsets and see if any
+		// of them have a field of this type.  if one does, we return true;
+		// otherwise, false.
+
+		foreach ($this->fieldsets as $fieldset) {
+			if ($fieldset->hasFieldOfType($type)) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 }

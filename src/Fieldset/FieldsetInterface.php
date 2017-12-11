@@ -62,7 +62,14 @@ interface FieldsetInterface {
 	 * @return bool
 	 */
 	public function hasField(string $id): bool;
-	
+
+	/**
+	 * @param string $type
+	 *
+	 * @return bool
+	 */
+	public function hasFieldOfType(string $type): bool;
+
 	/**
 	 * @param string $id
 	 *

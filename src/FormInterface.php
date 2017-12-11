@@ -136,19 +136,33 @@ interface FormInterface {
 	 * @return string
 	 */
 	public function getForm(bool $display = true): string;
-	
+
 	/**
-	 * @return array
+	 * @param string $id
+	 *
+	 * @return bool
 	 */
-	public function getFields(): array;
-	
+	public function hasField(string $id): bool;
+
+	/**
+	 * @param string $type
+	 *
+	 * @return bool
+	 */
+	public function hasFieldOfType(string $type): bool;
+
 	/**
 	 * @param string $id
 	 *
 	 * @return FieldInterface|null
 	 */
 	public function getField(string $id): ?FieldInterface;
-	
+
+	/**
+	 * @return array
+	 */
+	public function getFields(): array;
+
 	/**
 	 * @param string $jsonForm
 	 *
