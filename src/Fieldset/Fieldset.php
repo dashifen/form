@@ -162,6 +162,12 @@ class Fieldset implements FieldsetInterface {
 	 * @param FieldsetInterface $fieldset
 	 */
 	public function addFieldset(FieldsetInterface $fieldset): void {
+		
+		// adding a fieldset to a fieldset requires that it be a child.
+		// even if a programmer already set that flag for our parameter,
+		// we'll set it again here to be sure.
+		
+		$fieldset->setChild(true);
 		$this->fields[$fieldset->getId()] = $fieldset;
 	}
 	
@@ -202,11 +208,7 @@ class Fieldset implements FieldsetInterface {
 		
 		foreach ($fieldsets as $fieldset) {
 			if ($fieldset instanceof FieldsetInterface) {
-				if (!$fieldset->isChild()) {
-					$fieldset->setChild(true);
-				}
-				
-				$this->fields[$fieldset->getId()] = $fieldset;
+				$this->addFieldset($fieldset);
 			} else {
 				throw new FieldsetException(
 					"Must add fieldsets with addFieldsets()",
