@@ -172,7 +172,7 @@ abstract class AbstractField implements FieldInterface {
 			
 			$field->setAdditionalAttributes($transformProperty($fieldData->additionalAttributes ?? []));
 			$field->setValidation($transformProperty($fieldData->validation ?? []));
-			$field->setClasses($transformProperty($fieldData->classes ?? []));
+			$field->setInputClasses($transformProperty($fieldData->inputClasses ?? []));
 			$field->setOptions($transformProperty($fieldData->options ?? []));
 		}
 		
