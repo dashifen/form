@@ -2,6 +2,8 @@
 
 namespace Dashifen\Form\Fields\Elements\Selections;
 
+use Dashifen\Form\Fields\FieldException;
+
 /**
  * Class SelectOneWithOther
  *
@@ -29,14 +31,29 @@ class SelectOneWithOther extends SelectOne {
 	
 	/**
 	 * @return array
+	 * @throws FieldException
 	 */
-	public function getClasses(): array {
+	public function getInputClasses(): array {
 		
 		// we want to be sure that we have our with-other class but then
 		// our parent can take care of the rest.
 		
 		$this->addWithOtherClass();
-		return parent::getClasses();
+		return parent::getInputClasses();
+	}
+	
+	/**
+	 * @return string
+	 * @throws FieldException
+	 */
+	public function getInputClassesAsString(): string {
+		
+		// like when getting an array of our classes, we want to be sure
+		// that we have our with-other class, but then the SelectOne's
+		// behavior is good enough.
+		
+		$this->addWithOtherClass();
+		return parent::getInputClassesAsString();
 	}
 	
 	/**
@@ -48,8 +65,8 @@ class SelectOneWithOther extends SelectOne {
 		// then we'll add it here.  this function may get called a few times,
 		// but we only add it if needed the first time.
 		
-		if (!in_array("with-other", $this->classes)) {
-			$this->classes[] = "with-other";
+		if (!in_array("with-other", $this->inputClasses)) {
+			$this->inputClasses[] = "with-other";
 		}
 	}
 	
@@ -57,6 +74,7 @@ class SelectOneWithOther extends SelectOne {
 	 * @param bool $display
 	 *
 	 * @return string
+	 * @throws FieldException
 	 */
 	public function getField(bool $display = false): string {
 		
@@ -79,7 +97,7 @@ class SelectOneWithOther extends SelectOne {
 		
 		$attributes = $this->getAttributesAsString(["placeholder"]);
 		$format = '<input type="text" id="%s" name="%s" class="%s other other-hidden" %s value="%s">';
-		$input = sprintf($format, $this->getId("unknown"), $this->getName("unknown"), $this->getClassesAsString(), $attributes, $this->getOther());
+		$input = sprintf($format, $this->getId("unknown"), $this->getName("unknown"), $this->getInputClassesAsString(), $attributes, $this->getOther());
 		$field = str_replace("</select>", "$input</select>", $field);
 		
 		// but, that's not quite enough; we also need to add the behavior that
@@ -98,6 +116,7 @@ class SelectOneWithOther extends SelectOne {
 	 * @param array $default
 	 *
 	 * @return array
+	 * @throws FieldException
 	 */
 	protected function transformJsonValue(array $default = []): array {
 		return array_values(parent::transformJsonValue($default));
@@ -119,19 +138,6 @@ class SelectOneWithOther extends SelectOne {
 	 */
 	public function getName(string $suffix = "known"): string {
 		return sprintf("%s-%s", $this->name, $suffix);
-	}
-	
-	/**
-	 * @return string
-	 */
-	public function getClassesAsString(): string {
-		
-		// like when getting an array of our classes, we want to be sure
-		// that we have our with-other class, but then the SelectOne's
-		// behavior is good enough.
-		
-		$this->addWithOtherClass();
-		return parent::getClassesAsString();
 	}
 	
 	/**

@@ -11,4 +11,5 @@ class FieldException extends Exception {
 	public const UNKNOWN_FIELD     = 4;
 	public const NOT_ENOUGH_VALUES = 5;
 	public const INVALID_VALUE     = 6;
+	public const UNKNOWN_PROPERTY  = 7;
 }

@@ -3,6 +3,7 @@
 namespace Dashifen\Form\Fields\Elements\Entries;
 
 use Dashifen\Form\Fields\AbstractField;
+use Dashifen\Form\Fields\FieldException;
 
 /**
  * Class Text
@@ -14,6 +15,7 @@ class Text extends AbstractField {
 	 * @param bool $display
 	 *
 	 * @return string
+	 * @throws FieldException
 	 */
 	public function getField(bool $display = false): string {
 		$format = '
@@ -36,7 +38,7 @@ class Text extends AbstractField {
 			$this->getType(),
 			$this->getId(),
 			$this->getName(),
-			$this->getClassesAsString(),
+			$this->getInputClassesAsString(),
 			$this->getValue(),
 			$this->getRequired() ? "true" : "false",
 			$this->getRequired() ? " required" : ""

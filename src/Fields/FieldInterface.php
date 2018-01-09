@@ -65,22 +65,42 @@ interface FieldInterface {
 	/**
 	 * @param string $class
 	 */
-	public function setClass(string $class): void;
+	public function setInputClass(string $class): void;
 	
 	/**
 	 * @param array $classes
 	 */
-	public function setClasses(array $classes): void;
+	public function setInputClasses(array $classes): void;
 	
 	/**
 	 * @return string
 	 */
-	public function getClassesAsString(): string;
+	public function getInputClassesAsString(): string;
 	
 	/**
 	 * @return array
 	 */
-	public function getClasses(): array;
+	public function getInputClasses(): array;
+	
+	/**
+	 * @param string $class
+	 */
+	public function setInputContainerClass(string $class): void;
+	
+	/**
+	 * @param array $classes
+	 */
+	public function setInputContainerClasses(array $classes): void;
+	
+	/**
+	 * @return string
+	 */
+	public function getInputContainerClassesAsString(): string;
+	
+	/**
+	 * @return array
+	 */
+	public function getInputContainerClasses(): array;
 	
 	/**
 	 * @param string $instructions

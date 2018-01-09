@@ -21,7 +21,8 @@ abstract class AbstractField implements FieldInterface {
 	protected $type;
 	protected $label;
 	protected $options = [];
-	protected $classes = [];
+	protected $inputClasses = [];
+	protected $inputContainerClasses = [];
 	protected $required = "";
 	protected $instructions = "";
 	protected $errorMessage = "";
@@ -384,39 +385,143 @@ abstract class AbstractField implements FieldInterface {
 	
 	/**
 	 * @param string $class
+	 *
+	 * @throws FieldException
 	 */
-	public function setClass(string $class): void {
-		$this->classes[] = $class;
-	}
-	
-	public function getClassesAsString(): string {
-		
-		// instead of returning the array, this one returns a string
-		// that can be crammed right into the value for an HTML
-		// attribute.
-		
-		return join(" ", $this->classes);
-	}
-	
-	/**
-	 * @return array
-	 */
-	public function getClasses(): array {
-		return $this->classes;
+	public function setInputClass(string $class): void {
+		$this->setClass($class, "inputClasses");
 	}
 	
 	/**
 	 * @param array $classes
+	 *
+	 * @return void
+	 * @throws FieldException
 	 */
-	public function setClasses(array $classes): void {
+	public function setInputClasses(array $classes): void {
+		$this->setClasses($classes, "inputClasses");
+	}
+	
+	/**
+	 * @return string
+	 * @throws FieldException
+	 */
+	public function getInputClassesAsString(): string {
+		return $this->getClassesAsString("inputClasses");
+	}
+	
+	/**
+	 * @return array
+	 * @throws FieldException
+	 */
+	public function getInputClasses(): array {
+		return $this->getClasses("inputClasses");
+	}
+	
+	/**
+	 * @param string $class
+	 *
+	 * @return void
+	 * @throws FieldException
+	 */
+	public function setInputContainerClass(string $class): void {
+		$this->setClass($class, "inputContainerClasses");
+	}
+	
+	/**
+	 * @param array $classes
+	 *
+	 * @throws FieldException
+	 */
+	public function setInputContainerClasses(array $classes): void {
+		$this->setClasses($classes, "inputContainerClasses");
+	}
+	
+	/**
+	 * @return string
+	 * @throws FieldException
+	 */
+	public function getInputContainerClassesAsString(): string {
+		return $this->getClassesAsString("inputContainerClasses");
+	}
+	
+	/**
+	 * @return array
+	 * @throws FieldException
+	 */
+	public function getInputContainerClasses(): array {
+		return $this->getClasses("inputContainerClasses");
+	}
+	
+	/**
+	 * @param string $class
+	 * @param string $property
+	 *
+	 * @throws FieldException
+	 */
+	protected function setClass(string $class, string $property): void {
+		if (!in_array($property, ["inputClasses", "inputContainerClasses"])) {
+			throw new FieldException("Unknown property: $property",
+				FieldException::UNKNOWN_PROPERTY);
+		}
+		
+		$this->{$property}[] = $class;
+	}
+	
+	
+	/**
+	 * @param array  $classes
+	 * @param string $property
+	 *
+	 * @throws FieldException
+	 */
+	protected function setClasses(array $classes, string $property): void {
+		if (!in_array($property, ["inputClasses", "inputContainerClasses"])) {
+			throw new FieldException("Unknown property: $property",
+				FieldException::UNKNOWN_PROPERTY);
+		}
 		
 		// we don't want to set our property to the argument because
 		// that might undo work done elsewhere.  instead, we merge and
 		// then ensure that we have a unique list as follows.
 		
-		$temp = array_merge($classes, $this->classes);
+		$temp = array_merge($classes, $this->{$property});
 		$temp = array_filter(array_unique($temp));
-		$this->classes = $temp;
+		$this->{$property} = $temp;
+	}
+	
+	/**
+	 * @param string $property
+	 *
+	 * @return string
+	 * @throws FieldException
+	 */
+	protected function getClassesAsString(string $property): string {
+		if (!in_array($property, ["inputClasses", "inputContainerClasses"])) {
+			throw new FieldException("Unknown property: $property",
+				FieldException::UNKNOWN_PROPERTY);
+		}
+		
+		// instead of returning the array, this one returns a string
+		// that can be crammed right into the value for an HTML
+		// attribute.
+		
+		return join(" ", $this->{$property});
+	}
+	
+	/**
+	 * @param string $property
+	 *
+	 * @return array
+	 * @throws FieldException
+	 */
+	protected function getClasses(string $property): array {
+		if (!in_array($property, ["inputClasses", "inputContainerClasses"])) {
+			throw new FieldException("Unknown property: $property",
+				FieldException::UNKNOWN_PROPERTY);
+		}
+		
+		return $this->{$property};
 	}
 	
 	/**
@@ -612,6 +717,12 @@ abstract class AbstractField implements FieldInterface {
 		$classes[] = "field-" . $this->type;
 		$classes[] = $this->id;
 		
+		// the above are the classes that we demand be present on our
+		// input containers.  but, we might have even more classes that
+		// have been specified as input container classes.  we'll want
+		// to add those, too like this:
+		
+		$classes = array_merge($classes, $this->inputContainerClasses);
 		return join(" ", array_filter(array_unique($classes)));
 	}
 	
