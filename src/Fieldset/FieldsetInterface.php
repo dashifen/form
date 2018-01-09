@@ -11,6 +11,26 @@ use Dashifen\Form\Fields\FieldInterface;
  */
 interface FieldsetInterface {
 	/**
+	 * @return string
+	 */
+	public function getId(): string;
+	
+	/**
+	 * @return string
+	 */
+	public function getLegend(): string;
+	
+	/**
+	 * @param bool $child
+	 */
+	public function setChild(bool $child): void;
+	
+	/**
+	 * @return bool
+	 */
+	public function isChild(): bool;
+	
+	/**
 	 * @param string $class
 	 */
 	public function setClass(string $class): void;
@@ -29,6 +49,7 @@ interface FieldsetInterface {
 	 * @return array
 	 */
 	public function getClasses(): array;
+	
 	
 	/**
 	 * @param string $instructions
@@ -50,6 +71,17 @@ interface FieldsetInterface {
 	 * @throws FieldsetException
 	 */
 	public function addFields(array $fields): void;
+	
+	/**
+	 * @param FieldsetInterface $fieldset
+	 */
+	public function addFieldset(FieldsetInterface $fieldset): void;
+	
+	/**
+	 * @param array $fieldsets
+	 * @throws FieldsetException
+	 */
+	public function addFieldsets(array $fieldsets): void;
 	
 	/**
 	 * @return array
