@@ -66,6 +66,7 @@ class SelectOne extends AbstractField {
 	
 	/**
 	 * @return string
+	 * @throws FieldException
 	 */
 	protected function getFieldAsSelect(): string {
 		
@@ -91,7 +92,7 @@ class SelectOne extends AbstractField {
 			$this->getVerboseInstructions(),
 			$this->getId(),
 			$this->getName(),
-			$this->getClassesAsString(),
+			$this->getInputClassesAsString(),
 			$this->required ? "true" : "false",
 			$this->required ? " required" : "",
 			$options
@@ -121,6 +122,12 @@ class SelectOne extends AbstractField {
 			: $this->getGroupedOptions();
 	}
 	
+	/**
+	 * @param int $acceptableDepth
+	 *
+	 * @return int
+	 * @throws FieldException
+	 */
 	protected function validateOptions(int $acceptableDepth): int {
 		// we have to check for two problems:  a complete lack of options
 		// and an option array with more than two dimensions.
@@ -212,6 +219,7 @@ class SelectOne extends AbstractField {
 	
 	/**
 	 * @return string
+	 * @throws FieldException
 	 */
 	protected function getFieldAsFieldset(): string {
 	
@@ -245,6 +253,7 @@ class SelectOne extends AbstractField {
 	
 	/**
 	 * @return string
+	 * @throws FieldException
 	 */
 	protected function getInputsAsString(): string {
 		
@@ -272,7 +281,7 @@ class SelectOne extends AbstractField {
 		foreach ($this->options as $value => $text) {
 			$checked = $this->isSelected($value) ? " checked" : "";
 			$radios[] = sprintf($format, $this->getName(), $value,
-				$this->getClassesAsString(), $checked, $text
+				$this->getInputClassesAsString(), $checked, $text
 			);
 		}
 		

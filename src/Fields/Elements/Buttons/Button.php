@@ -5,6 +5,7 @@ namespace Dashifen\Form\Fields\Elements\Buttons;
 use Dashifen\Form\Fields\AbstractField;
 use Dashifen\Form\Fields\Traits\IconTrait;
 use Dashifen\Form\Fields\Traits\TypeTrait;
+use Dashifen\Form\Fields\FieldException;
 
 class Button extends AbstractField {
 	use IconTrait, TypeTrait;
@@ -88,10 +89,16 @@ class Button extends AbstractField {
 		$this->extraType = $extraType;
 	}
 	
+	/**
+	 * @param bool $display
+	 *
+	 * @return string
+	 * @throws FieldException
+	 */
 	public function getField(bool $display = false): string {
 		$field = sprintf('<button type="%s" class="%s">%s%s</button>',
 			$this->getExtraType(),
-			$this->getClassesAsString(),
+			$this->getInputClassesAsString(),
 			$this->getIcon(),
 			$this->getLabel()
 		);

@@ -3,6 +3,7 @@
 namespace Dashifen\Form\Fields\Elements\Entries;
 
 use Dashifen\Form\Fields\AbstractField;
+use Dashifen\Form\Fields\FieldException;
 
 /**
  * Class TextArea
@@ -14,6 +15,7 @@ class TextArea extends AbstractField {
 	 * @param bool $display
 	 *
 	 * @return string
+	 * @throws FieldException
 	 */
 	public function getField(bool $display = false): string {
 		$format = '
@@ -37,7 +39,7 @@ class TextArea extends AbstractField {
 			$this->getVerboseInstructions(),
 			$this->getId(),
 			$this->getName(),
-			$this->getClassesAsString(),
+			$this->getInputClassesAsString(),
 			$this->getRequired() ? "true" : "false",
 			$this->getRequired() ? " required" : "",
 			$this->getValue()

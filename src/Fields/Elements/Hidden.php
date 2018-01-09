@@ -3,12 +3,14 @@
 namespace Dashifen\Form\Fields\Elements;
 
 use Dashifen\Form\Fields\AbstractField;
+use Dashifen\Form\Fields\FieldException;
 
 class Hidden extends AbstractField {
 	/**
 	 * @param bool $display
 	 *
 	 * @return string
+	 * @throws FieldException
 	 */
 	public function getField(bool $display = false): string {
 		
@@ -18,7 +20,7 @@ class Hidden extends AbstractField {
 		// simple.
 		
 		$format = '<input type="hidden" id="%s" name="%s" class="%s" value="%s">';
-		$field = sprintf($format, $this->getId(), $this->getName(), $this->getClassesAsString(), $this->getValue());
+		$field = sprintf($format, $this->getId(), $this->getName(), $this->getInputClassesAsString(), $this->getValue());
 		return parent::display($field, $display);
 	}
 }
