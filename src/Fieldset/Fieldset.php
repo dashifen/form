@@ -79,7 +79,7 @@ class Fieldset implements FieldsetInterface {
 		// sure that we cast our child information as a boolean so that
 		// truth-y or false-y results in our data don't cause a problem.
 
-		$fieldset->setChild((bool)$fieldsetData->child ?? false);
+		$fieldset->setChild((bool)($fieldsetData->child ?? false));
 		$fieldset->setInstructions($fieldsetData->instructions ?? "");
 
 		// for classes, if it's not an array, we're going to
