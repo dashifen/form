@@ -34,4 +34,12 @@ interface ValidatorInterface {
 	 * @throws ValidatorException
 	 */
 	public function validateAny($value, array $functions): bool;
+
+	/**
+	 * @param bool  $setType
+	 * @param array ...$functions
+	 *
+	 * @return RuleSet
+	 */
+	public function generateRuleSet(bool $setType, ...$functions): RuleSet;
 }

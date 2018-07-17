@@ -14,20 +14,22 @@ class Validator implements ValidatorInterface {
 	 * @var \ReflectionClass
 	 */
 	protected $reflection;
-	
+
 	/**
 	 * Validator constructor.
+	 * @throws \ReflectionException
 	 */
 	public function __construct() {
 		$this->reflection = new \ReflectionClass($this);
 	}
-	
+
 	/**
 	 * @param       $value
 	 * @param array $functions
 	 *
 	 * @return bool
 	 * @throws ValidatorException
+	 * @throws \ReflectionException
 	 */
 	public function validateAll($value, array $functions): bool {
 		if (sizeof($functions) === 0) {
@@ -65,7 +67,7 @@ class Validator implements ValidatorInterface {
 		
 		return true;
 	}
-	
+
 	/**
 	 * @param        $value
 	 * @param string $function
@@ -73,6 +75,7 @@ class Validator implements ValidatorInterface {
 	 *
 	 * @return bool
 	 * @throws ValidatorException
+	 * @throws \ReflectionException
 	 */
 	public function validate($value, string $function, ...$parameters): bool {
 		if (!$this->reflection->hasMethod($function)) {
@@ -102,13 +105,14 @@ class Validator implements ValidatorInterface {
 		$method->setAccessible(true);
 		return $method->invoke($this, $value, ...$parameters);
 	}
-	
+
 	/**
 	 * @param       $value
 	 * @param array $functions
 	 *
 	 * @return bool
 	 * @throws ValidatorException
+	 * @throws \ReflectionException
 	 */
 	public function validateAny($value, array $functions): bool {
 		if (sizeof($functions) === 0) {
@@ -147,7 +151,37 @@ class Validator implements ValidatorInterface {
 		
 		return false;
 	}
-	
+
+	/**
+	 * @param bool  $setType
+	 * @param mixed ...$functions
+	 *
+	 * @return RuleSet
+	 * @throws ValidatorException
+	 */
+	public function generateRuleSet(bool $setType, ...$functions): RuleSet {
+
+		// this is simply a factory method that passes it's parameters right
+		// over to the RuleSet object constructor.  but, first, we want to see
+		// if the $functions array lists methods that exist herein.  we use
+		// array_diff() to do that work; it returns any information in the
+		// first argument that's not found in the latter one.  so, in this
+		// case, it's items in $functions that aren't found in this class's
+		// methods.
+
+		$missingMethods = array_diff($functions, get_class_methods($this));
+
+		if (sizeof($missingMethods) !== 0) {
+			$missingMethods = join(", ", $missingMethods);
+			throw new ValidatorException(
+				"Unknown validation function(s): $missingMethods",
+				ValidatorException::UNKNOWN_FUNCTION
+			);
+		}
+
+		return new RuleSet($setType, $functions);
+	}
+
 	/**
 	 * @param $value
 	 *
