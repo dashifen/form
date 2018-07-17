@@ -159,7 +159,7 @@ class Validator implements ValidatorInterface {
 	 * @return RuleSet
 	 * @throws ValidatorException
 	 */
-	public function generateRuleSet(bool $setType, ...$functions): RuleSet {
+	public static function geetRuleSet(bool $setType, ...$functions): RuleSet {
 
 		// this is simply a factory method that passes it's parameters right
 		// over to the RuleSet object constructor.  but, first, we want to see
@@ -169,7 +169,7 @@ class Validator implements ValidatorInterface {
 		// case, it's items in $functions that aren't found in this class's
 		// methods.
 
-		$missingMethods = array_diff($functions, get_class_methods($this));
+		$missingMethods = array_diff($functions, get_class_methods(static::class));
 
 		if (sizeof($missingMethods) !== 0) {
 			$missingMethods = join(", ", $missingMethods);

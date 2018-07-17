@@ -41,5 +41,6 @@ interface ValidatorInterface {
 	 *
 	 * @return RuleSet
 	 */
-	public function generateRuleSet(bool $setType, ...$functions): RuleSet;
+	public static function getRuleSet(bool $setType, ...$functions): RuleSet;
+
 }
