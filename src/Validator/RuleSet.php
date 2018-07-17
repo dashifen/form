@@ -2,6 +2,10 @@
 
 namespace Dashifen\Form\Validator;
 
+/**
+ * Class RuleSet
+ * @package Dashifen\Form\Validator
+ */
 class RuleSet {
 	const ALL = true;
 	const ANY = false;
@@ -9,12 +13,12 @@ class RuleSet {
 	/**
 	 * @var array
 	 */
-	public $rules = [];
+	protected $rules = [];
 
 	/**
 	 * @var bool
 	 */
-	public $type = self::ALL;
+	protected $type = self::ALL;
 
 	/**
 	 * ValidationRuleSet constructor.
@@ -23,7 +27,35 @@ class RuleSet {
 	 * @param mixed ...$rules
 	 */
 	public function __construct(bool $type, ...$rules) {
-		$this->type = (bool) $type;
+		$this->setRules($rules);
+		$this->setType($type);
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getRules(): array {
+		return $this->rules;
+	}
+
+	/**
+	 * @param array $rules
+	 */
+	public function setRules(array $rules): void {
 		$this->rules = $rules;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function getType(): bool {
+		return $this->type;
+	}
+
+	/**
+	 * @param bool $type
+	 */
+	public function setType(bool $type): void {
+		$this->type = $type;
 	}
 }
