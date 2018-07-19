@@ -3,24 +3,63 @@
 namespace Dashifen\Form\Validator;
 
 use Mimey\MimeTypes;
+use ReflectionClass;
+use ReflectionMethod;
+use ReflectionException;
 
 /**
  * Class AbstractValidator
  * @package Dashifen\Form\Validator
  */
 class Validator implements ValidatorInterface {
-	
+
 	/**
-	 * @var \ReflectionClass
+	 * @var array 
 	 */
-	protected $reflection;
+	protected $validations = [];
+
+	/**
+	 * @var array
+	 */
+	static protected $staticValidations = [];
 
 	/**
 	 * Validator constructor.
-	 * @throws \ReflectionException
+	 * @throws ReflectionException
 	 */
 	public function __construct() {
-		$this->reflection = new \ReflectionClass($this);
+
+		// to get a list of the available validators, we're going to get the
+		// protected methods of this class that return bool and store them in
+		// our property.  then, we can use that property below to confirm that
+		// any requested validations exist herein.  notice that we only care
+		// about protected functions that return a bool.  those are the ones
+		// that perform validation operations.
+
+		$reflection = new ReflectionClass($this);
+		$methods = $reflection->getMethods(ReflectionMethod::IS_PROTECTED);
+
+		foreach ($methods as $method) {
+			if ($method->getReturnType()->getName() === "bool") {
+				$this->validations[] = $method->getName();
+			}
+		}
+
+		// the first time that we do this work, we also want to set our
+		// static validations.  that way, when people are working with this
+		// object to get rule sets, these will already be available to that
+		// static method.
+
+		if (sizeof(static::$staticValidations) === 0) {
+			static::$staticValidations = $this->validations;
+		}
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getValidations(): array {
+		return $this->validations;
 	}
 
 	/**
@@ -29,7 +68,6 @@ class Validator implements ValidatorInterface {
 	 *
 	 * @return bool
 	 * @throws ValidatorException
-	 * @throws \ReflectionException
 	 */
 	public function validateAll($value, array $functions): bool {
 		if (sizeof($functions) === 0) {
@@ -75,35 +113,16 @@ class Validator implements ValidatorInterface {
 	 *
 	 * @return bool
 	 * @throws ValidatorException
-	 * @throws \ReflectionException
 	 */
 	public function validate($value, string $function, ...$parameters): bool {
-		if (!$this->reflection->hasMethod($function)) {
+		if (!in_array($function, $this->validations)) {
 			throw new ValidatorException(
 				"Unknown validation function: $function",
 				ValidatorException::UNKNOWN_FUNCTION
 			);
 		}
-		
-		// now that we've confirmed that this object has a method named
-		// $function, we have to be sure that it returns a boolean value.
-		// if not, we throw a different exception.
-		
-		$method = new \ReflectionMethod($this, $function);
-		if (($type = $method->getReturnType()) != "bool") {
-			throw new ValidatorException(
-				"Invalid return type: $type",
-				ValidatorException::INVALID_RETURN_TYPE
-			);
-		}
-		
-		// finally, we invoke our $method.  if we can't do so, we want to
-		// catch the ReflectionException that's thrown and "convert" it to
-		// a ValidatorException in the catch block below.
-		
-		
-		$method->setAccessible(true);
-		return $method->invoke($this, $value, ...$parameters);
+
+		return $this->{$function}($value, ...$parameters);
 	}
 
 	/**
@@ -112,7 +131,6 @@ class Validator implements ValidatorInterface {
 	 *
 	 * @return bool
 	 * @throws ValidatorException
-	 * @throws \ReflectionException
 	 */
 	public function validateAny($value, array $functions): bool {
 		if (sizeof($functions) === 0) {
@@ -157,19 +175,38 @@ class Validator implements ValidatorInterface {
 	 * @param mixed ...$functions
 	 *
 	 * @return RuleSet
+	 * @throws ReflectionException
 	 * @throws ValidatorException
 	 */
 	public static function getRuleSet(bool $setType, ...$functions): RuleSet {
+		if (sizeof(static::$staticValidations) === 0) {
+
+			// if this object was instantiated before we get here, then the
+			// static list of validations should already be available; it's
+			// set in the constructor.  but, just in case they're not, we'll
+			// double-check here to be sure.
+
+			static::$staticValidations = (new static)->getValidations();
+		}
 
 		// this is simply a factory method that passes it's parameters right
 		// over to the RuleSet object constructor.  but, first, we want to see
-		// if the $functions array lists methods that exist herein.  we use
-		// array_diff() to do that work; it returns any information in the
-		// first argument that's not found in the latter one.  so, in this
-		// case, it's items in $functions that aren't found in this class's
-		// methods.
+		// if the $functions array lists methods that exist herein.  most of
+		// the time, the values in $functions are strings, but they can also
+		// be arrays.  so, first, we'll transform it a bit to do our work
+		// below.
 
-		$missingMethods = array_diff($functions, get_class_methods(static::class));
+		$validations = array_map(function($function) {
+
+			// when a validation function requires arguments beyond the
+			// value it's validating, the function name is the first index
+			// of an array.  subsequent ones are those arguments, but we
+			// don't worry about those for now.
+
+			return is_array($function) ? $function[0] : $function;
+		}, $functions);
+
+		$missingMethods = array_diff($validations, static::$staticValidations);
 
 		if (sizeof($missingMethods) !== 0) {
 			$missingMethods = join(", ", $missingMethods);
@@ -179,7 +216,13 @@ class Validator implements ValidatorInterface {
 			);
 		}
 
-		return new RuleSet($setType, $functions);
+		// we could pass $functions directly to the RuleSet constructor,
+		// but then we get [[a, b, c]] where a, b, and c are our functions.
+		// by sending ...$functions, the we unpack the array sending its
+		// values to the constructor where they're gathered back up again
+		// since the constructor is, itself, variadic.
+
+		return new RuleSet($setType, ...$functions);
 	}
 
 	/**
@@ -308,16 +351,7 @@ class Validator implements ValidatorInterface {
 	protected function notEmptyArray($value): bool {
 		return $this->array($value) && !$this->emptyArray($value);
 	}
-	
-	/**
-	 * @param $value
-	 *
-	 * @return bool
-	 */
-	protected function emptyArray($value): bool {
-		return $this->array($value) && sizeof($value) === 0;
-	}
-	
+
 	/**
 	 * @param $value
 	 *
@@ -336,6 +370,15 @@ class Validator implements ValidatorInterface {
 		return $this->array($value)
 			? $this->emptyArray($value)
 			: $this->emptyString($value);
+	}
+
+	/**
+	 * @param $value
+	 *
+	 * @return bool
+	 */
+	protected function emptyArray($value): bool {
+		return $this->array($value) && sizeof($value) === 0;
 	}
 	
 	/**

@@ -9,6 +9,11 @@ namespace Dashifen\Form\Validator;
  */
 interface ValidatorInterface {
 	/**
+	 * @return array
+	 */
+	public function getValidations(): array;
+
+	/**
 	 * @param        $value
 	 * @param string $function
 	 * @param array  $parameters
