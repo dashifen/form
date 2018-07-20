@@ -14,7 +14,7 @@ use ReflectionException;
 class Validator implements ValidatorInterface {
 
 	/**
-	 * @var array 
+	 * @var array
 	 */
 	protected $validations = [];
 
@@ -68,6 +68,7 @@ class Validator implements ValidatorInterface {
 	 *
 	 * @return bool
 	 * @throws ValidatorException
+	 * @throws ReflectionException
 	 */
 	public function validateAll($value, array $functions): bool {
 		if (sizeof($functions) === 0) {
@@ -76,33 +77,33 @@ class Validator implements ValidatorInterface {
 				ValidatorException::UNKNOWN_FUNCTION
 			);
 		}
-		
+
 		// this method requires that $value pass all of the validation
 		// $functions.  so, we'll loop over the array and if we find a
 		// failure we can return false.  if we make it all the way through,
 		// we return true.
-		
+
 		foreach ($functions as $function) {
 			$parameters = [];
-			
+
 			if (is_array($function)) {
-				
+
 				// in order to facilitate the use of this method and
 				// validation tests that require a parameter (like maxLength
 				// below),  our $function might be an array.  in this case,
 				// we assume that the zeroth index is the name of the
 				// function to call and all subsequent indices are the
 				// parameters.
-				
+
 				$parameters = array_slice($function, 1);
 				$function = $function[0];
 			}
-			
+
 			if (!$this->validate($value, $function, ...$parameters)) {
 				return false;
 			}
 		}
-		
+
 		return true;
 	}
 
@@ -113,6 +114,7 @@ class Validator implements ValidatorInterface {
 	 *
 	 * @return bool
 	 * @throws ValidatorException
+	 * @throws ReflectionException
 	 */
 	public function validate($value, string $function, ...$parameters): bool {
 		if (!in_array($function, $this->validations)) {
@@ -122,7 +124,15 @@ class Validator implements ValidatorInterface {
 			);
 		}
 
-		return $this->{$function}($value, ...$parameters);
+		// some of our validators need parameters, but those that do always
+		// have a default.  so, if we don't have anything to send their way,
+		// we want to avoid sending them a value of nothing which would
+		// override their defaults.  luckily, we have a great way of seeing
+		// if our $parameters array isn't empty!
+
+		return $this->notEmptyArray($parameters)
+			? $this->{$function}($value, ...$parameters)
+			: $this->{$function}($value);
 	}
 
 	/**
@@ -131,6 +141,7 @@ class Validator implements ValidatorInterface {
 	 *
 	 * @return bool
 	 * @throws ValidatorException
+	 * @throws ReflectionException
 	 */
 	public function validateAny($value, array $functions): bool {
 		if (sizeof($functions) === 0) {
@@ -139,34 +150,34 @@ class Validator implements ValidatorInterface {
 				ValidatorException::UNKNOWN_FUNCTION
 			);
 		}
-		
+
 		// this method requires that $value pass any of the validation
 		// $functions.  so, we'll loop over the array and if we find a
 		// successful test, we return true.  but, if we make it all the
 		// way through, then none of the tests were successful, so we
 		// return false.
-		
+
 		foreach ($functions as $function) {
 			$parameters = [];
-			
+
 			if (is_array($function)) {
-				
+
 				// in order to facilitate the use of this method and
 				// validation tests that require a parameter (like maxLength
 				// below),  our $function might be an array.  in this case,
 				// we assume that the zeroth index is the name of the
 				// function to call and all subsequent indices are the
 				// parameters.
-				
+
 				$parameters = array_slice($function, 1);
 				$function = $function[0];
 			}
-			
+
 			if ($this->validate($value, $function, $parameters)) {
 				return true;
 			}
 		}
-		
+
 		return false;
 	}
 
@@ -175,7 +186,6 @@ class Validator implements ValidatorInterface {
 	 * @param mixed ...$functions
 	 *
 	 * @return RuleSet
-	 * @throws ReflectionException
 	 * @throws ValidatorException
 	 */
 	public static function getRuleSet(bool $setType, ...$functions): RuleSet {
@@ -233,7 +243,7 @@ class Validator implements ValidatorInterface {
 	protected function float($value): bool {
 		return $this->number($value) && !$this->integer($value);
 	}
-	
+
 	/**
 	 * @param $value
 	 *
@@ -242,23 +252,23 @@ class Validator implements ValidatorInterface {
 	protected function number($value): bool {
 		return is_numeric($value);
 	}
-	
+
 	/**
 	 * @param $value
 	 *
 	 * @return bool
 	 */
 	protected function integer($value): bool {
-		
+
 		// at first glance, we could use intval() instead of floor().
 		// then, we could also tighten up our comparison by using ===
 		// instead of ==.  but, intval(4.0) === 4 would report false.
 		// by using floor(), instead, we get a true result in such
 		// cases.
-		
+
 		return $this->number($value) && floor($value) == $value;
 	}
-	
+
 	/**
 	 * @param $value
 	 *
@@ -267,7 +277,7 @@ class Validator implements ValidatorInterface {
 	protected function positive($value): bool {
 		return $this->number($value) && $value > 0;
 	}
-	
+
 	/**
 	 * @param $value
 	 *
@@ -276,34 +286,34 @@ class Validator implements ValidatorInterface {
 	protected function negative($value): bool {
 		return $this->number($value) && $value < 0;
 	}
-	
+
 	/**
 	 * @param $value
 	 *
 	 * @return bool
 	 */
 	protected function nonZero($value): bool {
-		
+
 		// sometimes it's handy to test that something is not zero, just
 		// like we want to test above that it is.
-		
+
 		return $this->number($value) && !$this->zero($value);
 	}
-	
+
 	/**
 	 * @param $value
 	 *
 	 * @return bool
 	 */
 	protected function zero($value): bool {
-		
+
 		// like when we tested our integer, we won't use === here
 		// because 0.0 === 0 is actually false.  but, 0.0 == 0 is
 		// true, so that's our comparison.
-		
+
 		return $this->number($value) && $value == 0;
 	}
-	
+
 	/**
 	 * @param     $value
 	 * @param int $maxLength
@@ -313,7 +323,7 @@ class Validator implements ValidatorInterface {
 	protected function maxLength($value, int $maxLength): bool {
 		return $this->string($value) && strlen($value) <= $maxLength;
 	}
-	
+
 	/**
 	 * @param $value
 	 *
@@ -322,7 +332,7 @@ class Validator implements ValidatorInterface {
 	protected function string($value): bool {
 		return is_string($value);
 	}
-	
+
 	/**
 	 * @param $value
 	 *
@@ -333,7 +343,7 @@ class Validator implements ValidatorInterface {
 			? $this->notEmptyArray($value)
 			: $this->notEmptyString($value);
 	}
-	
+
 	/**
 	 * @param $value
 	 *
@@ -342,7 +352,7 @@ class Validator implements ValidatorInterface {
 	protected function array($value): bool {
 		return is_array($value);
 	}
-	
+
 	/**
 	 * @param $value
 	 *
@@ -360,7 +370,7 @@ class Validator implements ValidatorInterface {
 	protected function notEmptyString($value): bool {
 		return $this->string($value) && !$this->empty($value);
 	}
-	
+
 	/**
 	 * @param $value
 	 *
@@ -378,27 +388,65 @@ class Validator implements ValidatorInterface {
 	 * @return bool
 	 */
 	protected function emptyArray($value): bool {
-		return $this->array($value) && sizeof($value) === 0;
+		if ($this->array($value)) {
+
+			// if there's nothing in the array, then we can feel
+			// confident that it's empty.  we'll return true here
+			// to avoid doing the work below.
+
+			if (sizeof($value) === 0) {
+				return true;
+			}
+
+			// just because an array has indices, doesn't mean they
+			// contain values.  if we're here, we're going to flatten
+			// the array and then join it into a string.  if that
+			// string is empty, then the values in the array were
+			// empty, too.
+
+			$flattenedArray = [];
+			array_walk_recursive($value, function($x) use (&$flattenedArray) {
+				$flattenedArray[] = $x;
+			});
+
+			// now, if we join $flattenedArray using the empty string as
+			// our separator, we can test if the resulting string is empty.
+			// if that's true, then the array that contained those empty
+			// values making up this string was also empty.
+
+			return $this->emptyString(join("", $flattenedArray));
+		}
+
+		// if we're here, then $value wasn't even an array.  we'll just
+		// return false because if it's not an array, it can't be an empty
+		// one.
+
+		return false;
 	}
-	
+
 	/**
 	 * @param $value
 	 *
 	 * @return bool
 	 */
 	protected function emptyString($value): bool {
+
+		// for our purposes, being comprised entirely of whitespace is
+		// just as good as being empty.  so, we replace \s characters
+		// with nothing and see if the length of that string is zero.
+
 		return $this->string($value) && strlen(preg_replace("/\s+/", "", $value)) === 0;
 	}
-	
+
 	/**
 	 * @param $value
 	 *
 	 * @return bool
 	 */
 	protected function email($value): bool {
-		return (bool)filter_var($value, FILTER_VALIDATE_EMAIL);
+		return (bool) filter_var($value, FILTER_VALIDATE_EMAIL);
 	}
-	
+
 	/**
 	 * @param     $value
 	 * @param int $flags
@@ -406,9 +454,9 @@ class Validator implements ValidatorInterface {
 	 * @return bool
 	 */
 	protected function url($value, int $flags = FILTER_FLAG_SCHEME_REQUIRED & FILTER_FLAG_HOST_REQUIRED): bool {
-		return (bool)filter_var($value, FILTER_VALIDATE_URL, $flags);
+		return (bool) filter_var($value, FILTER_VALIDATE_URL, $flags);
 	}
-	
+
 	/**
 	 * @param        $value
 	 * @param string $format
@@ -416,13 +464,13 @@ class Validator implements ValidatorInterface {
 	 * @return bool
 	 */
 	protected function time($value, string $format = "g:i A"): bool {
-		
+
 		// times can be validated just like dates; we just specif our
 		// format when we call the other function.
-		
+
 		return $this->date($value, $format);
 	}
-	
+
 	/**
 	 * @param        $value
 	 * @param string $format
@@ -430,23 +478,23 @@ class Validator implements ValidatorInterface {
 	 * @return bool
 	 */
 	protected function date($value, $format = "m/d/Y"): bool {
-		
+
 		// for dates, we do something weird.  first, we use strtotime() to
 		// confirm that what we have is a readable datetime format.
-		
+
 		$timestamp = strtotime($value);
 		if ($timestamp === false) {
 			return false;
 		}
-		
+
 		// if we didn't return above, then we have a valid datetime format
 		// in $value.  next, we'll want to re-create our date using $format
 		// and see if that created date matches our value.  if so, then we
 		// we have a valid date in the right format and we'll return true.
-		
+
 		return date($format, $timestamp) === $value;
 	}
-	
+
 	/**
 	 * @param string $name
 	 * @param int    $size
@@ -455,34 +503,34 @@ class Validator implements ValidatorInterface {
 	 */
 	protected function uploadedFileSize(string $name, int $size): bool {
 		$valid = false;
-		
+
 		if ($this->uploadedFile($name)) {
-			
+
 			// now that we know this file exists, we'll see if it's size is
 			// less than the $size we were sent here.  since we can't always
 			// trust that the posted information hasn't been messed with,
 			// we'll get the size right from the disk.
-			
+
 			$valid = filesize($_FILES[$name]["tmp_name"]) <= $size;
 		}
-		
+
 		return $valid;
 	}
-	
+
 	/**
 	 * @param string $name
 	 *
 	 * @return bool
 	 */
 	protected function uploadedFile(string $name): bool {
-		
+
 		// the existence of an uploaded file is determined by the existence
 		// of the $name index within $_FILES.  so, this is a problem for
 		// isset().
-		
+
 		return isset($_FILES[$name]);
 	}
-	
+
 	/**
 	 * @param string $name
 	 * @param array  $types
@@ -492,22 +540,22 @@ class Validator implements ValidatorInterface {
 	 */
 	protected function uploadedFileType(string $name, ...$types): bool {
 		$valid = false;
-		
+
 		if ($this->uploadedFile($name)) {
-			
+
 			// the list of $types has MIME types against which we need to
 			// test the uploaded file's type.  we'll have the Mimey object
 			// to get its type since we can't always rely on the file info
 			// extension being available.
-			
+
 			$valid = class_exists("finfo")
 				? $this->checkFileTypeWithFinfo($name, $types)
 				: $this->checkFileTypeWithMimey($name, $types);
 		}
-		
+
 		return $valid;
 	}
-	
+
 	/**
 	 * @param string $name
 	 * @param array  $types
@@ -516,23 +564,23 @@ class Validator implements ValidatorInterface {
 	 * @throws ValidatorException
 	 */
 	protected function checkFileTypeWithFinfo(string $name, array $types): bool {
-		
+
 		// this is the preferred method to check file types because we can
 		// pass it the direct link to the file itself and it identifies the
 		// type from there.  this should mean that even files from Macs,
 		// i.e. without extensions, should be identifiable.
-		
+
 		$info = new \finfo(FILEINFO_MIME_TYPE);
 		$type = $info->file($_FILES[$name]["tmp_name"]);
-		
+
 		if ($type === false) {
 			throw new ValidatorException("Cannot identify file type.",
 				ValidatorException::MIME_NOT_FOUND);
 		}
-		
+
 		return in_array($type, $types);
 	}
-	
+
 	/**
 	 * @param string $name
 	 * @param array  $types
@@ -541,26 +589,26 @@ class Validator implements ValidatorInterface {
 	 * @throws ValidatorException
 	 */
 	protected function checkFileTypeWithMimey(string $name, array $types): bool {
-		
+
 		// Mimey isn't as slick as finfo because it focuses on extensions.
 		// since Macs don't use extensions, this isn't foolproof.  hence,
 		// the need to test and, maybe, throw an Exception.
-		
+
 		$mimey = new MimeTypes();
 		$extension = pathinfo($_FILES[$name]["name"], PATHINFO_EXTENSION);
-		
+
 		if (empty($extension)) {
 			throw new ValidatorException("Cannot identify file extension.",
 				ValidatorException::NO_EXTENSION);
 		}
-		
+
 		$type = $mimey->getMimeType($extension);
-		
+
 		if (empty($type)) {
 			throw new ValidatorException("Cannot identify file type.",
 				ValidatorException::MIME_NOT_FOUND);
 		}
-		
+
 		return in_array($type, $types);
 	}
 }
