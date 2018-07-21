@@ -4,24 +4,24 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "f030665a02a435024960465534a30dfd",
+    "content-hash": "fbc7f2e35f6ff113cc5e577f25396a5b",
     "packages": [
         {
             "name": "dashifen/exception",
-            "version": "1.0.0",
+            "version": "1.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/dashifen/exception.git",
-                "reference": "51b3679dd77147bd0e31a3071125d3a9295cd88d"
+                "reference": "11090d8664e8c320fa11c5e9772a13483b3024c1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/dashifen/exception/zipball/51b3679dd77147bd0e31a3071125d3a9295cd88d",
-                "reference": "51b3679dd77147bd0e31a3071125d3a9295cd88d",
+                "url": "https://api.github.com/repos/dashifen/exception/zipball/11090d8664e8c320fa11c5e9772a13483b3024c1",
+                "reference": "11090d8664e8c320fa11c5e9772a13483b3024c1",
                 "shasum": ""
             },
             "require": {
-                "php": "^7.1"
+                "php": ">=7"
             },
             "type": "library",
             "autoload": {
@@ -42,24 +42,24 @@
                 }
             ],
             "description": "a base class for exceptions in Dashifen's other work",
-            "time": "2017-06-01T13:18:01+00:00"
+            "time": "2018-07-07T11:33:21+00:00"
         },
         {
             "name": "ralouphie/mimey",
-            "version": "1.0.8",
+            "version": "2.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ralouphie/mimey.git",
-                "reference": "d69688d4856daa13a9124c819d148ccc2235dea2"
+                "reference": "3af64e9ba0495aa9e3d22651b3b4e6dca06a4d43"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ralouphie/mimey/zipball/d69688d4856daa13a9124c819d148ccc2235dea2",
-                "reference": "d69688d4856daa13a9124c819d148ccc2235dea2",
+                "url": "https://api.github.com/repos/ralouphie/mimey/zipball/3af64e9ba0495aa9e3d22651b3b4e6dca06a4d43",
+                "reference": "3af64e9ba0495aa9e3d22651b3b4e6dca06a4d43",
                 "shasum": ""
             },
             "require": {
-                "php": "^5.3|^7.0"
+                "php": "^5.4|^7.0"
             },
             "require-dev": {
                 "phpunit/phpunit": "~3.7.0",
@@ -82,7 +82,7 @@
                 }
             ],
             "description": "PHP package for converting file extensions to MIME types and vice versa.",
-            "time": "2017-01-27T20:57:22+00:00"
+            "time": "2018-07-06T05:58:33+00:00"
         }
     ],
     "packages-dev": [],
