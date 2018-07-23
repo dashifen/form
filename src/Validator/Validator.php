@@ -68,7 +68,6 @@ class Validator implements ValidatorInterface {
 	 *
 	 * @return bool
 	 * @throws ValidatorException
-	 * @throws ReflectionException
 	 */
 	public function validateAll($value, array $functions): bool {
 		if (sizeof($functions) === 0) {
@@ -114,7 +113,6 @@ class Validator implements ValidatorInterface {
 	 *
 	 * @return bool
 	 * @throws ValidatorException
-	 * @throws ReflectionException
 	 */
 	public function validate($value, string $function, ...$parameters): bool {
 		if (!in_array($function, $this->validations)) {
@@ -141,7 +139,6 @@ class Validator implements ValidatorInterface {
 	 *
 	 * @return bool
 	 * @throws ValidatorException
-	 * @throws ReflectionException
 	 */
 	public function validateAny($value, array $functions): bool {
 		if (sizeof($functions) === 0) {
@@ -187,6 +184,7 @@ class Validator implements ValidatorInterface {
 	 *
 	 * @return RuleSet
 	 * @throws ValidatorException
+	 * @throws ReflectionException
 	 */
 	public static function getRuleSet(bool $setType, ...$functions): RuleSet {
 		if (sizeof(static::$staticValidations) === 0) {
@@ -241,7 +239,47 @@ class Validator implements ValidatorInterface {
 	 * @return bool
 	 */
 	protected function float($value): bool {
-		return $this->number($value) && !$this->integer($value);
+		return !$this->array($value)
+			? $this->number($value) && !$this->integer($value)
+			: $this->validateArray($value, "float");
+	}
+
+	/**
+	 * @param array  $values
+	 * @param string $function
+	 * @param array  $parameters
+	 *
+	 * @return bool
+	 */
+	private function validateArray(array $values, string $function, ...$parameters): bool {
+
+		// this method is intentionally private so that (a) children don't
+		// change it and (b) it's not recognized in the constructor as a
+		// validator.
+
+		foreach ($values as $value) {
+
+			// for each $value in the array, we see if it passes the
+			// specified function.  because not all validators require
+			// additional parameters, we test to see if we should pass
+			// that information along.
+
+			$passed = $this->notEmptyArray($parameters)
+				? $this->{$function}($value, ...$parameters)
+				: $this->{$function}($value);
+
+			// if something didn't pass the test, we return false immediately.
+			// this should save us a few nanoseconds.
+
+			if (!$passed) {
+				return false;
+			}
+		}
+
+		// if we made it to the end of the array and everything passed, then
+		// we end up here.  that means the array is valid, so we return true.
+
+		return true;
 	}
 
 	/**
@@ -250,7 +288,9 @@ class Validator implements ValidatorInterface {
 	 * @return bool
 	 */
 	protected function number($value): bool {
-		return is_numeric($value);
+		return !$this->array($value)
+			? is_numeric($value)
+			: $this->validateArray($value, "number");
 	}
 
 	/**
@@ -266,7 +306,9 @@ class Validator implements ValidatorInterface {
 		// by using floor(), instead, we get a true result in such
 		// cases.
 
-		return $this->number($value) && floor($value) == $value;
+		return !$this->array($value)
+			? $this->number($value) && floor($value) == $value
+			: $this->validateArray($value, "integer");
 	}
 
 	/**
@@ -275,7 +317,9 @@ class Validator implements ValidatorInterface {
 	 * @return bool
 	 */
 	protected function positive($value): bool {
-		return $this->number($value) && $value > 0;
+		return !$this->array($value)
+			? $this->number($value) && $value > 0
+			: $this->validateArray($value, "positive");
 	}
 
 	/**
@@ -284,7 +328,9 @@ class Validator implements ValidatorInterface {
 	 * @return bool
 	 */
 	protected function negative($value): bool {
-		return $this->number($value) && $value < 0;
+		return !$this->array($value)
+			? $this->number($value) && $value < 0
+			: $this->validateArray($value, "negative");
 	}
 
 	/**
@@ -297,7 +343,9 @@ class Validator implements ValidatorInterface {
 		// sometimes it's handy to test that something is not zero, just
 		// like we want to test above that it is.
 
-		return $this->number($value) && !$this->zero($value);
+		return !$this->array($value)
+			? $this->number($value) && !$this->zero($value)
+			: $this->validateArray($value, "nonZero");
 	}
 
 	/**
@@ -311,7 +359,9 @@ class Validator implements ValidatorInterface {
 		// because 0.0 === 0 is actually false.  but, 0.0 == 0 is
 		// true, so that's our comparison.
 
-		return $this->number($value) && $value == 0;
+		return !$this->array($value)
+			? $this->number($value) && $value == 0
+			: $this->validateArray($value, "zero");
 	}
 
 	/**
@@ -321,7 +371,9 @@ class Validator implements ValidatorInterface {
 	 * @return bool
 	 */
 	protected function maxLength($value, int $maxLength): bool {
-		return $this->string($value) && strlen($value) <= $maxLength;
+		return !$this->array($value)
+			? $this->string($value) && strlen($value) <= $maxLength
+			: $this->validateArray($value, "maxLength", $maxLength);
 	}
 
 	/**
@@ -330,7 +382,9 @@ class Validator implements ValidatorInterface {
 	 * @return bool
 	 */
 	protected function string($value): bool {
-		return is_string($value);
+		return !$this->array($value)
+			? is_string($value)
+			: $this->validateArray($value, "string");
 	}
 
 	/**
@@ -444,7 +498,9 @@ class Validator implements ValidatorInterface {
 	 * @return bool
 	 */
 	protected function email($value): bool {
-		return (bool) filter_var($value, FILTER_VALIDATE_EMAIL);
+		return !$this->array($value)
+			? (bool) filter_var($value, FILTER_VALIDATE_EMAIL)
+			: $this->validateArray($value, "email");
 	}
 
 	/**
@@ -454,7 +510,9 @@ class Validator implements ValidatorInterface {
 	 * @return bool
 	 */
 	protected function url($value, int $flags = FILTER_FLAG_SCHEME_REQUIRED & FILTER_FLAG_HOST_REQUIRED): bool {
-		return (bool) filter_var($value, FILTER_VALIDATE_URL, $flags);
+		return !$this->array($value)
+			? (bool) filter_var($value, FILTER_VALIDATE_URL, $flags)
+			: $this->validateArray($value, "url", $flags);
 	}
 
 	/**
@@ -465,7 +523,7 @@ class Validator implements ValidatorInterface {
 	 */
 	protected function time($value, string $format = "g:i A"): bool {
 
-		// times can be validated just like dates; we just specif our
+		// times can be validated just like dates; we just specify our
 		// format when we call the other function.
 
 		return $this->date($value, $format);
@@ -478,21 +536,15 @@ class Validator implements ValidatorInterface {
 	 * @return bool
 	 */
 	protected function date($value, $format = "m/d/Y"): bool {
+		return !$this->array($value)
 
-		// for dates, we do something weird.  first, we use strtotime() to
-		// confirm that what we have is a readable datetime format.
+			// strtotime() should give us a timestamp or false.  if it's
+			// false, then the date becomes 12/31/1969.  since they probably
+			// didn't enter that date, it wont' match and the validation
+			// fails.
 
-		$timestamp = strtotime($value);
-		if ($timestamp === false) {
-			return false;
-		}
-
-		// if we didn't return above, then we have a valid datetime format
-		// in $value.  next, we'll want to re-create our date using $format
-		// and see if that created date matches our value.  if so, then we
-		// we have a valid date in the right format and we'll return true.
-
-		return date($format, $timestamp) === $value;
+			? date($format, strtotime($value)) === $value
+			: $this->validateArray($value, "date", $format);
 	}
 
 	/**
