@@ -17,9 +17,9 @@
 		}
 	},
 	"require": {
-		"ralouphie/mimey": "^2.0",
-		"dashifen/exception": "^1",
-		"php": "^7.1"
+		"ralouphie/mimey": "2.1.*",
+		"dashifen/exception": "1.1.*",
+		"php": "7.3.*"
 	},
 	"license": "MIT"
 }
